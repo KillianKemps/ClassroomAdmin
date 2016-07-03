@@ -93,9 +93,10 @@ def upload():
 
 @app.route('/oauth2callback')
 def oauth2callback():
+    scopes = ['https://www.googleapis.com/auth/classroom.courses', 'https://www.googleapis.com/auth/classroom.rosters']
     flow = client.flow_from_clientsecrets(
         'client_secret.json',
-        scope='https://www.googleapis.com/auth/classroom.courses',
+        scopes,
         redirect_uri=flask.url_for('oauth2callback', _external=True))
     if 'code' not in flask.request.args:
         auth_uri = flow.step1_get_authorize_url()
