@@ -4,5 +4,11 @@
   </head>
   <body>
       <h1>Classroom admin</h1>
+      <h2>List</h2>
+      <ul>
+        {% for course in courses %}
+          <li>{{ course }}</li>
+        {% endfor %}
+      </ul>
   </body>
 </html>
