@@ -4,11 +4,11 @@
   </head>
   <body>
       <h1>Classroom admin</h1>
-      <h2>List</h2>
-      <ul>
-        {% for course in courses %}
-          <li>{{ course }}</li>
-        {% endfor %}
-      </ul>
+      <h2>Upload</h2>
+      <form action="upload" method="post" enctype="multipart/form-data">
+    Select csv to upload:
+        <input type="file" name="file" id="file">
+        <input type="submit" value="Upload CSV" name="submit">
+      </form>
   </body>
 </html>
