@@ -1,4 +1,5 @@
 import json
+import csv
 
 import httplib2
 import flask
@@ -48,6 +49,12 @@ def create():
 
         results = service.courses().create(body=body).execute()
         return render_template('success.html')
+
+@app.route('/read')
+def read():
+    with open('test_courses.csv') as csvfile:
+        reader = csv.DictReader(csvfile)
+        return render_template('courses.html', courses=reader)
 
 
 @app.route('/oauth2callback')
