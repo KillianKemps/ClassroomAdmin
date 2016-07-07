@@ -58,12 +58,49 @@ def create():
     else:
         http_auth = credentials.authorize(httplib2.Http())
         service = discovery.build('classroom', 'v1', http=http_auth)
-        body = {
-            "ownerId": "killian.kemps@etu-webschoolfactory.fr",
-            "name": "second_test_course"
-        }
+        if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')) :
+            with open(os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')) as csvfile:
+                reader = csv.DictReader(csvfile)
+                course = next(reader)
 
-        results = service.courses().create(body=body).execute()
+                print('%'*80)
+                print(course)
+
+                # Create course
+                body = {
+                    'ownerId': course['Moderateur'],
+                    'name': course['Cours'],
+                    'section': course['Année scolaire'] + ' - ' + course['Domaine'] + ' - ' + course['Promotion'],
+                    'courseState': 'ACTIVE'
+                }
+
+                result = service.courses().create(body=body).execute()
+
+                print('*'*80)
+                print(result)
+
+                # Add teacher to course
+                teacher = {
+                    'courseId': result['id'],
+                    'userId': course['Mail wsf de l\'intervenant'],
+                    'role': 'TEACHER'
+                }
+
+                try:
+                    service.invitations().create(body=teacher).execute()
+                    print (u'User {0} was added as a teacher to the course with ID "{1}"'
+                        .format(teacher['userId'],
+                        teacher['course_id']))
+                except HttpError as e:
+                    error = simplejson.loads(e.content).get('error')
+                    if(error.get('code') == 409):
+                        print(u'User "{0}" is already a member of this course.').format(
+teacher['userId'])
+                    else:
+                        raise
+
+                # XXX Add students to course
+
         return render_template('success.html')
 
 @app.route('/read')
