@@ -11,8 +11,11 @@ from oauth2client import client
 from flask import render_template
 from flask import Flask
 from werkzeug import secure_filename
+from flask_assets import Environment, Bundle
+
 
 app = Flask(__name__)
+assets = Environment(app)
 
 # This is the path to the upload directory
 app.config['UPLOAD_FOLDER'] = 'uploads/'

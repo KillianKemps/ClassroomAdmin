@@ -1,14 +1,8 @@
-<html>
-  <head>
-    <title>Classroom admin</title>
-  </head>
-  <body>
-      <h1>Classroom admin</h1>
-      <h2>List CSV</h2>
-      <ul>
-        {% for course in courses %}
-          <li>{{ course['Cours'] }} | {{ course['Moderateur'] }} | {{ course['Mail wsf de l\'intervenant'] }}  : {{ course['Liste de diffusion'] }},  {{ course['Promotion'] }}, {{ course['Année scolaire'] }}, {{ course['Domaine'] }}</li>
-        {% endfor %}
-      </ul>
-  </body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+  <ul>
+    {% for course in courses %}
+      <li>{{ course['Cours'] }} | {{ course['Moderateur'] }} | {{ course['Mail wsf de l\'intervenant'] }}  : {{ course['Liste de diffusion'] }},  {{ course['Promotion'] }}, {{ course['Année scolaire'] }}, {{ course['Domaine'] }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

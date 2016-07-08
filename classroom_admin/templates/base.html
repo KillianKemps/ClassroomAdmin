@@ -1,0 +1,13 @@
+<html>
+  <head>
+    <title>Classroom admin</title>
+  </head>
+  <body>
+      <h1>Classroom admin</h1>
+      {% block content %}{% endblock %}
+      {% assets output="gen/packed.js",
+          "js/vue.js" %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+      {% endassets %}
+  </body>
+</html>
