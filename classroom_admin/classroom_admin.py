@@ -127,10 +127,36 @@ def upload():
         # will basicaly show on the browser the uploaded file
         return flask.redirect(flask.url_for('index'))
 
+@app.route('/mailing-list')
+def get_mailing_list():
+    print('*'*80)
+    if 'credentials' not in flask.session:
+        return flask.redirect(flask.url_for('oauth2callback'))
+
+    credentials = client.OAuth2Credentials.from_json(flask.session['credentials'])
+
+    if credentials.access_token_expired:
+        return flask.redirect(flask.url_for('oauth2callback'))
+    else:
+        http_auth = credentials.authorize(httplib2.Http())
+        service = discovery.build('admin', 'directory_v1', http=http_auth)
+        if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')) :
+            with open(os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')) as csvfile:
+                reader = csv.DictReader(csvfile)
+                course = next(reader)
+                results = service.members().list(groupKey=course['Liste de diffusion']).execute()
+                print('result: ', results)
+                users = results.get('members', [])
+
+                for user in users:
+                    print('{0} '.format(user['email']))
+
+        return render_template('success.html')
+
 
 @app.route('/oauth2callback')
 def oauth2callback():
-    scopes = ['https://www.googleapis.com/auth/classroom.courses', 'https://www.googleapis.com/auth/classroom.rosters']
+    scopes = ['https://www.googleapis.com/auth/classroom.courses', 'https://www.googleapis.com/auth/classroom.rosters', 'https://www.googleapis.com/auth/admin.directory.group.readonly']
     flow = client.flow_from_clientsecrets(
         'client_secret.json',
         scopes,
