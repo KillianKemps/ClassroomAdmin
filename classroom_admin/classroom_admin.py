@@ -1,11 +1,11 @@
-import json
 import csv
 import os
 
+import simplejson
 import httplib2
 import flask
 
-from apiclient import discovery
+from apiclient import discovery, errors
 from oauth2client import client
 
 from flask import render_template
@@ -57,7 +57,7 @@ def create():
         return flask.redirect(flask.url_for('oauth2callback'))
     else:
         http_auth = credentials.authorize(httplib2.Http())
-        service = discovery.build('classroom', 'v1', http=http_auth)
+        classroom_service = discovery.build('classroom', 'v1', http=http_auth)
         if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')) :
             with open(os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')) as csvfile:
                 reader = csv.DictReader(csvfile)
@@ -74,7 +74,7 @@ def create():
                     'courseState': 'ACTIVE'
                 }
 
-                result = service.courses().create(body=body).execute()
+                result = classroom_service.courses().create(body=body).execute()
 
                 print('*'*80)
                 print(result)
@@ -87,19 +87,46 @@ def create():
                 }
 
                 try:
-                    service.invitations().create(body=teacher).execute()
+                    classroom_service.invitations().create(body=teacher).execute()
                     print (u'User {0} was added as a teacher to the course with ID "{1}"'
                         .format(teacher['userId'],
-                        teacher['course_id']))
-                except HttpError as e:
+                        teacher['courseId']))
+                except errors.HttpError as e:
                     error = simplejson.loads(e.content).get('error')
                     if(error.get('code') == 409):
-                        print(u'User "{0}" is already a member of this course.').format(
-teacher['userId'])
+                        print('User "{0}" is already a member of this course.'.format(
+                            teacher['userId']))
                     else:
                         raise
 
-                # XXX Add students to course
+                # Add students to course
+                print('%'*80)
+                discov_service = discovery.build('admin', 'directory_v1', http=http_auth)
+                students = discov_service.members().list(groupKey=course['Liste de diffusion']).execute()
+                members = students.get('members', [])
+
+                for member in members:
+                    if member['email'].endswith('@etu-webschoolfactory.fr'):
+                        print('{0} '.format(member['email']))
+
+                        student = {
+                            'courseId': result['id'],
+                            'userId': member['email'],
+                            'role': 'STUDENT'
+                        }
+
+                        try:
+                            classroom_service.invitations().create(body=student).execute()
+                            print (u'User {0} was added as a student to the course with ID "{1}"'
+                                .format(student['userId'],
+                                student['courseId']))
+                        except errors.HttpError as e:
+                            error = simplejson.loads(e.content).get('error')
+                            if(error.get('code') == 409):
+                                print('User "{0}" is already a member of this course.'.format(
+                                    student['userId']))
+                            else:
+                                raise
 
         return render_template('success.html')
 
@@ -149,7 +176,8 @@ def get_mailing_list():
                 users = results.get('members', [])
 
                 for user in users:
-                    print('{0} '.format(user['email']))
+                    if user['email'].endswith('etu-webschoolfactory.fr'):
+                        print('{0} '.format(user['email']))
 
         return render_template('success.html')
 
