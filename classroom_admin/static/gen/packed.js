@@ -10071,3 +10071,13 @@ var template = Object.freeze({
   return Vue;
 
 }));
+alert('heey');
+
+Vue.config.delimiters = ['${', '}'];
+
+new Vue({
+  el: '#app',
+  data: {
+    message: 'Hello Vue.js!'
+  }
+})

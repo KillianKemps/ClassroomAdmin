@@ -4,9 +4,11 @@
   </head>
   <body>
       <h1>Classroom admin</h1>
-      {% block content %}{% endblock %}
+      <div id="app">
+        {% block content %}{% endblock %}
+      </div>
       {% assets output="gen/packed.js",
-          "js/vue.js" %}
+          "js/vue.js", "js/script.js" %}
         <script type="text/javascript" src="{{ ASSET_URL }}"></script>
       {% endassets %}
   </body>

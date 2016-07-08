@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
+  <button id="create-courses">Create courses</button>
+  ${ message }
   <ul>
     {% for course in courses %}
       <li>{{ course['Cours'] }} | {{ course['Moderateur'] }} | {{ course['Mail wsf de l\'intervenant'] }}  : {{ course['Liste de diffusion'] }},  {{ course['Promotion'] }}, {{ course['Année scolaire'] }}, {{ course['Domaine'] }}</li>
