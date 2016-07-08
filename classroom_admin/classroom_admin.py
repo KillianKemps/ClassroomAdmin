@@ -48,6 +48,24 @@ def index():
 
 @app.route('/create')
 def create():
+    print('0'*80)
+    print('0'*80)
+    print('0'*80)
+
+    emails = {}
+
+    def get_emails(mailing_list):
+        print('$'*80)
+        if mailing_list in emails:
+            print('Mailing list already exist')
+            return emails[mailing_list]
+        else:
+            print('Getting mailing list')
+            discov_service = discovery.build('admin', 'directory_v1', http=http_auth)
+            students = discov_service.members().list(groupKey=mailing_list).execute()
+            emails[mailing_list] = students.get('members', [])
+            return emails[mailing_list]
+
     if 'credentials' not in flask.session:
         return flask.redirect(flask.url_for('oauth2callback'))
 
@@ -61,72 +79,87 @@ def create():
         if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')) :
             with open(os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')) as csvfile:
                 reader = csv.DictReader(csvfile)
-                course = next(reader)
 
-                print('%'*80)
-                print(course)
+                # Create batch for classroom requests
+                def callback(request_id, response, exception):
+                    if exception is not None:
+                        error = simplejson.loads(exception.content).get('error')
+                        if(error.get('code') == 409):
+                            print('User "{0}" is already a member of this course.'.format(
+                                response['userId']))
+                        else:
+                            print('Error adding user "{0}" to the course: {1}'.format(
+                                response['userId'], exception))
+                    else:
+                        print('User "{0}" added as a {1} to the course.'.format(
+                            response['userId'], response['role']))
 
-                # Create course
-                body = {
-                    'ownerId': course['Moderateur'],
-                    'name': course['Cours'],
-                    'section': course['Année scolaire'] + ' - ' + course['Domaine'] + ' - ' + course['Promotion'],
-                    'courseState': 'ACTIVE'
-                }
+                members_batch = classroom_service.new_batch_http_request(callback=callback)
 
-                result = classroom_service.courses().create(body=body).execute()
+                print('M'*80)
+                print('M'*80)
+                print('M'*80)
 
-                print('*'*80)
-                print(result)
+                for index, course in enumerate(reader):
+                    print('%'*80)
+                    print('index: ', index)
+                    print('%'*80)
 
-                # Add teacher to course
-                teacher = {
-                    'courseId': result['id'],
-                    'userId': course['Mail wsf de l\'intervenant'],
-                    'role': 'TEACHER'
-                }
+                    # Create course
+                    body = {
+                        'ownerId': course['Moderateur'],
+                        'name': course['Cours'],
+                        'section': course['Année scolaire'] + ' - ' + course['Domaine'] + ' - ' + course['Promotion'],
+                        'courseState': 'ACTIVE'
+                    }
 
-                try:
-                    classroom_service.invitations().create(body=teacher).execute()
-                    print (u'User {0} was added as a teacher to the course with ID "{1}"'
+                    result = classroom_service.courses().create(body=body).execute()
+
+                    print('*'*80)
+                    print(result)
+
+                    # Add teacher to course
+                    teacher = {
+                        'courseId': result['id'],
+                        'userId': course['Mail wsf de l\'intervenant'],
+                        'role': 'TEACHER'
+                    }
+
+                    request = classroom_service.invitations().create(body=teacher)
+                    members_batch.add(request, request_id=teacher['userId'] + str(index))
+
+                    print (u'User {0} was added to the batch as a teacher for course with ID "{1}"'
                         .format(teacher['userId'],
                         teacher['courseId']))
-                except errors.HttpError as e:
-                    error = simplejson.loads(e.content).get('error')
-                    if(error.get('code') == 409):
-                        print('User "{0}" is already a member of this course.'.format(
-                            teacher['userId']))
-                    else:
-                        raise
 
-                # Add students to course
-                print('%'*80)
-                discov_service = discovery.build('admin', 'directory_v1', http=http_auth)
-                students = discov_service.members().list(groupKey=course['Liste de diffusion']).execute()
-                members = students.get('members', [])
+                    # Add students to course
+                    members = get_emails(course['Liste de diffusion'])
 
-                for member in members:
-                    if member['email'].endswith('@etu-webschoolfactory.fr'):
-                        print('{0} '.format(member['email']))
+                    for member in members:
+                        if member['email'].endswith('@etu-webschoolfactory.fr'):
+                            student = {
+                                'courseId': result['id'],
+                                'userId': member['email'],
+                                'role': 'STUDENT'
+                            }
 
-                        student = {
-                            'courseId': result['id'],
-                            'userId': member['email'],
-                            'role': 'STUDENT'
-                        }
+                            try:
+                                request = classroom_service.invitations().create(body=student)
+                                members_batch.add(request, request_id=member['email'] + str(index))
 
-                        try:
-                            classroom_service.invitations().create(body=student).execute()
-                            print (u'User {0} was added as a student to the course with ID "{1}"'
-                                .format(student['userId'],
-                                student['courseId']))
-                        except errors.HttpError as e:
-                            error = simplejson.loads(e.content).get('error')
-                            if(error.get('code') == 409):
-                                print('User "{0}" is already a member of this course.'.format(
-                                    student['userId']))
-                            else:
-                                raise
+                                print (u'User {0} was added to the batch as a student for course with ID "{1}"'
+                                    .format(student['userId'],
+                                    student['courseId']))
+                            except KeyError as e:
+                                print('The user has already been added: ', e)
+
+                print('!'*80)
+                print('!'*80)
+                print('!'*80)
+                members_batch.execute(http=http_auth)
+                print('+'*80)
+                print('+'*80)
+                print('+'*80)
 
         return render_template('success.html')
 
