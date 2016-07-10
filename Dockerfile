@@ -14,7 +14,7 @@ COPY       requirements.txt /var/app/
 RUN        if [ -f /var/app/requirements.txt ]; then /usr/local/bin/pip install -r /var/app/requirements.txt; fi
 
 ENV        UWSGI_NUM_PROCESSES    1
-ENV        UWSGI_NUM_THREADS      1
+ENV        UWSGI_NUM_THREADS      50
 ENV        UWSGI_UID              uwsgi
 ENV        UWSGI_GID              uwsgi
 ENV        UWSGI_LOG_FILE         /var/log/uwsgi/uwsgi.log
