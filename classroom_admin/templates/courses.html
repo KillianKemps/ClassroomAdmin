@@ -14,7 +14,12 @@
         <th>Promotion</th>
         <th>Année scolaire</th>
         <th>Domaine</th>
-        <th>Sélectionner</th>
+        <th>Sélectionner tout:
+          <label class="form-checkbox" v-on:change="setAllCheckboxes">
+            <input type="checkbox"/>
+            <i class="form-icon"></i>
+          </label>
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -28,7 +33,7 @@
           <td>{{ course['Domaine'] }}</td>
           <td>
             <label class="form-checkbox" v-on:change="add">
-              <input type="checkbox" data-index="{{loop.index}}"/>
+              <input type="checkbox" class="course" data-index="{{loop.index}}"/>
               <i class="form-icon"></i>
             </label>
           </td>

@@ -5,12 +5,26 @@ new Vue({
   el: '#app',
   data: {
     isLoading: false,
+    checkboxes: document.querySelectorAll('input[class=course]'),
     coursesArray: []
   },
   methods: {
+    setAllCheckboxes: function(event) {
+      console.log('Changing all..');
+      for (i = 0; i < this.checkboxes.length; i++) {
+        this.checkboxes[i].checked = event.target.checked;
+        this.add({target: this.checkboxes[i]});
+      }
+    },
     add: function (event) {
-      console.log('Adding course...' , event.target.dataset.index - 1);
-      this.coursesArray.push(event.target.dataset.index - 1);
+      if (event.target.checked) {
+        console.log('Adding course...' , event.target.dataset.index - 1);
+        this.coursesArray.push(event.target.dataset.index - 1);
+      }
+      else {
+        console.log('Removing course...' , event.target.dataset.index - 1);
+        this.coursesArray.splice(this.coursesArray.indexOf(event.target.dataset.index - 1), 1);
+      }
     },
     create: function (event) {
       console.log('Sending request...');
