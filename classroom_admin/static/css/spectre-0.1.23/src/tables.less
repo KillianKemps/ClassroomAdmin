@@ -1,0 +1,35 @@
+// Tables
+.table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+
+  &.table-striped {
+    tbody {
+      tr:nth-of-type(odd) {
+        background: lighten(@core-border-color, 5%);
+      }
+    }
+  }
+  &.table-hover {
+    tbody {
+      tr {
+        &:hover {
+          background: lighten(@core-border-color, 2%);
+        }
+        &.selected {
+          background: lighten(@core-border-color, 1%);
+        }
+      }
+    }
+  }
+  th,
+  td {
+    border-bottom: .1rem solid @core-border-color;
+    padding: 1.5rem 1rem;
+    text-align: left;
+  }
+  th {
+    border-color: darken(@core-border-color, 15%);
+  }
+}

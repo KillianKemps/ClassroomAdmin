@@ -1,0 +1,115 @@
+// Typography
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: inherit;
+  font-weight: 300;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  margin-top: 2.5rem;
+}
+h1 {
+  font-size: 5rem;
+}
+h2 {
+  font-size: 4rem;
+}
+h3 {
+  font-size: 3rem;
+}
+h4 {
+  font-size: 2.4rem;
+}
+h5 {
+  font-size: 2rem;
+}
+h6 {
+  font-size: 1.6rem;
+}
+p {
+  margin: 0 0 1rem;
+}
+blockquote {
+  border-left: .2rem solid #ddd;
+  margin-left: 0;
+  padding: 1rem 2rem;
+
+  p:last-child {
+    margin-bottom: 0;
+  }
+
+  cite {
+    color: lighten(@body-font-color, 50%);
+  }
+}
+ul,
+ol {
+  margin: 2rem 0 2rem 2rem;
+  padding: 0;
+
+  ul,
+  ol {
+    margin: 1.5rem 0 1.5rem 2rem;
+  }
+
+  li {
+    margin-top: 1rem;
+  }
+}
+ul {
+  list-style: disc inside;
+
+  ul {
+    list-style-type: circle;
+  }
+}
+ol {
+  list-style: decimal inside;
+
+  ol {
+    list-style-type: lower-alpha;
+  }
+}
+dl {
+  dt {
+    font-weight: bold;
+  }
+  dd {
+    margin: .5rem 0 1.5rem 0;
+  }
+}
+.lead {
+  font-size: 120%;
+}
+mark,
+.highlight {
+  background: lighten(@control-color-warning, 32%);
+  .label-base();
+}
+
+// Code
+pre {
+  background: lighten(@core-border-color, 4%);
+  border-left: .2rem solid @core-color;
+  line-height: 1.8rem;
+  margin-bottom: 1em;
+  margin-top: 1em;
+  overflow: auto;
+  padding: 1.5rem;
+}
+code {
+  background: @core-border-color;
+  .label-base();
+  white-space: nowrap;
+
+  pre & {
+    background: transparent;
+    border-left: 0;
+    line-height: 1.8rem;
+    margin-bottom: 0;
+    margin-top: 0;
+  }
+}

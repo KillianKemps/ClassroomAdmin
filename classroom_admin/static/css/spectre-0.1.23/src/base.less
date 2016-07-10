@@ -1,0 +1,47 @@
+// Base
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+html {
+  box-sizing: border-box;
+  font-size: @html-font-size;
+  line-height: @html-line-height;
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  background: @body-bg;
+  color: @body-font-color;
+  font-family: @body-font-family;
+  font-size: @body-font-size;
+  overflow-x: hidden;
+}
+a {
+  color: @core-link-color;
+  text-decoration: underline;
+
+  &:hover,
+  &:focus {
+    color: darken(@core-link-color, 25%);
+  }
+}
+// Disabled state
+&[disabled],
+.disabled {
+  cursor: default;
+  opacity: .75;
+  pointer-events: none;
+}
+
+// Icons
+.btn,
+.toast,
+.menu {
+  .icon {
+    font-size: 1.3333em;
+    line-height: .8em;
+    margin-right: .2rem;
+    vertical-align: -20%;
+  }
+}

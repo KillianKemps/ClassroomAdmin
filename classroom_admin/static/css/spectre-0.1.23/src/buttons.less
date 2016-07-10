@@ -1,0 +1,157 @@
+// Buttons
+.btn {
+  -webkit-appearance: none;
+  background: transparent;
+  border: .1rem solid @core-color;
+  border-radius: .3rem;
+  color: @core-link-color;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 1.4rem;
+  height: 3.2rem;
+  line-height: 1.6rem;
+  outline: 0;
+  padding: .7rem 1.5rem;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+
+  &:focus {
+    background: lighten(@core-secondary-color, 1%);
+  }
+  &:hover {
+    background: @core-color;
+    border-color: darken(@core-color, 5%);
+    color: @core-light-color;
+  }
+  &:active,
+  &.active {
+    background: darken(@core-color, 5%);
+    border-color: darken(@core-color, 10%);
+    color: @core-light-color;
+  }
+
+  // Button Primary
+  &.btn-primary {
+    background: @core-color;
+    border-color: darken(@core-color, 5%);
+    color: @core-light-color;
+
+    &:focus {
+      background: darken(@core-color, 2%);
+    }
+    &:hover {
+      background: darken(@core-color, 5%);
+      border-color: darken(@core-color, 10%);
+      color: @core-light-color;
+    }
+    &:active,
+    &.active {
+      background: darken(@core-color, 10%);
+      border-color: darken(@core-color, 15%);
+      color: @core-light-color;
+    }
+
+    &.loading {
+      &::after {
+        border-color: @core-light-color;
+        border-right-color: transparent;
+        border-top-color: transparent;
+      }
+    }
+  }
+
+  // Button Link
+  &.btn-link {
+    background: transparent;
+    border-color: transparent;
+    color: @core-link-color;
+
+    &:hover,
+    &:focus {
+      color: darken(@core-link-color, 15%);
+    }
+    &:active,
+    &.active {
+      color: darken(@core-link-color, 25%);
+    }
+  }
+
+  // Button Small
+  &.btn-sm {
+    border-radius: .2rem;
+    font-size: 1.2rem;
+    height: 2.4rem;
+    line-height: 1.4rem;
+    padding: .4rem 1rem;
+  }
+
+  // Button Large
+  &.btn-lg {
+    border-radius: .4rem;
+    font-size: 1.8rem;
+    height: 4.2rem;
+    line-height: 2rem;
+    padding: 1rem 1.8rem;
+  }
+
+  // Button Block
+  &.btn-block {
+    display: block;
+    width: 100%;
+  }
+
+  // Button Clear
+  &.btn-clear {
+    background: transparent;
+    border: 0;
+    color: #666;
+    height: 2rem;
+    margin-left: .3rem;
+    opacity: .45;
+    padding: 0;
+
+    &:hover {
+      opacity: .85;
+    }
+
+    &::before {
+      content: '\00d7';
+      font-size: 2rem;
+    }
+  }
+}
+
+// Button groups
+.btn-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+
+  .btn {
+    flex: 1 0 auto;
+
+    &:first-child:not(:last-child) {
+      border-bottom-right-radius: 0;
+      border-top-right-radius: 0;
+    }
+    &:not(:first-child):not(:last-child) {
+      border-radius: 0;
+      margin-left: -.1rem;
+    }
+    &:last-child:not(:first-child) {
+      border-bottom-left-radius: 0;
+      border-top-left-radius: 0;
+      margin-left: -.1rem;
+    }
+    &:hover,
+    &:focus {
+      z-index: 99;
+    }
+  }
+
+  &.btn-group-block {
+    display: flex;
+  }
+}

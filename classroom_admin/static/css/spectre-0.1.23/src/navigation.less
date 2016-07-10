@@ -1,0 +1,116 @@
+// Navigation
+.breadcrumb,
+.tab,
+.pagination {
+  list-style: none;
+  margin: .5rem 0;
+}
+// Breadcrumbs
+.breadcrumb {
+  padding: 1.2rem;
+
+  .breadcrumb-item {
+    display: inline-block;
+    margin: 0;
+
+    a {
+      text-decoration: none;
+    }
+
+    &:last-child {
+      &,
+      a {
+        color: lighten(@body-font-color, 20%);
+        pointer-events: none;
+      }
+    }
+
+    &:not(:last-child) {
+      &::after {
+        color: @control-color;
+        content: "/";
+        padding: 0 .4rem;
+      }
+    }
+  }
+}
+// Tabs
+.tab {
+  border-bottom: .1rem solid @control-color;
+  display: flex;
+
+  .tab-item {
+    margin-bottom: -.1rem;
+    margin-top: 0;
+
+    a {
+      border-bottom: .2rem solid transparent;
+      color: @body-font-color;
+      display: block;
+      padding: .5rem 1.5rem;
+      text-decoration: none;
+
+      &:hover,
+      &:focus {
+        border-bottom-color: @core-color;
+        color: @core-link-color;
+      }
+    }
+
+    &.active {
+      a {
+        border-bottom-color: darken(@core-color, 10%);
+        color: darken(@core-link-color, 10%);
+      }
+    }
+  }
+
+  &.tab-block {
+    .tab-item {
+      flex: 1 0 auto;
+      text-align: center;
+
+      .badge {
+        &[data-badge]::after {
+          position: absolute;
+          right: 1.5rem;
+          top: .6rem;
+          transform: translate(50%, -.8rem);
+        }
+      }
+    }
+  }
+}
+// Pagination
+.pagination {
+  display: inline-block;
+  padding: 1.2rem;
+
+  .page-item {
+    display: inline-block;
+
+    span {
+      display: inline-block;
+      padding: .6rem .5rem;
+    }
+    a {
+      border-radius: .3rem;
+      display: inline-block;
+      margin: 0 .1rem;
+      padding: .6rem 1.2rem;
+      text-decoration: none;
+
+      &:hover,
+      &:focus {
+        background: @core-secondary-color;
+      }
+    }
+
+    &.active {
+      a {
+        background: @core-color;
+        color: @core-light-color;
+      }
+    }
+  }
+}

@@ -1,10 +1,39 @@
 {% extends "base.html" %}
+
+{% block navbar %}
+<button id="create-courses" class="btn btn-primary btn-lg" v-on:click="create" v-bind:class="{ 'loading': isLoading }">Create courses</button>
+{% endblock %}
+
 {% block content %}
-  <button id="create-courses" v-on:click="create">Create courses</button>
-  ${ message }
-  <ul>
-    {% for course in courses %}
-      <li>{{ course['Cours'] }} | {{ course['Moderateur'] }} | {{ course['Mail wsf de l\'intervenant'] }}  : {{ course['Liste de diffusion'] }},  {{ course['Promotion'] }}, {{ course['Année scolaire'] }}, {{ course['Domaine'] }}</li>
-    {% endfor %}
-  </ul>
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th>Cours</th>
+        <th>Mail wsf de l'intervenant</th>
+        <th>Liste de diffusion</th>
+        <th>Promotion</th>
+        <th>Année scolaire</th>
+        <th>Domaine</th>
+        <th>Sélectionner</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for course in courses %}
+        <tr>
+          <td>{{ course['Cours'] }}</td>
+          <td>{{ course['Mail wsf de l\'intervenant'] }}</td>
+          <td>{{ course['Liste de diffusion'] }}</td>
+          <td>{{ course['Promotion'] }}</td>
+          <td>{{ course['Année scolaire'] }}</td>
+          <td>{{ course['Domaine'] }}</td>
+          <td>
+            <label class="form-checkbox" v-on:change="add">
+              <input type="checkbox" data-index="{{loop.index}}"/>
+              <i class="form-icon"></i>
+            </label>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

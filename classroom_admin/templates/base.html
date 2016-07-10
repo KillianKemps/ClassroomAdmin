@@ -1,15 +1,28 @@
 <html>
   <head>
     <title>Classroom admin</title>
+    {% assets output="gen/packed.css",
+        "css/spectre.min.css" %}
+      <link rel="stylesheet" href="{{ ASSET_URL }}">
+    {% endassets %}
   </head>
   <body>
-      <h1>Classroom admin</h1>
-      <div id="app">
-        {% block content %}{% endblock %}
-      </div>
-      {% assets output="gen/packed.js",
-          "js/vue.js", "js/script.js", "js/vue-resource.min.js" %}
-        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
-      {% endassets %}
+    <div id="app" class="container">
+      <header class="navbar bg-grey">
+        <section class="navbar-section">
+          <a href="#" class="navbar-brand"><h1>Classroom Admin</h1></a>
+        </section>
+        <section class="navbar-section">
+          {% block navbar %}{% endblock %}
+        </section>
+      </header>
+
+      {% block content %}{% endblock %}
+    </div>
+
+    {% assets output="gen/packed.js",
+        "js/vue.js", "js/script.js", "js/vue-resource.min.js" %}
+      <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+    {% endassets %}
   </body>
 </html>
