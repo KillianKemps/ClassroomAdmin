@@ -87,3 +87,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Ignore generated assets
+classroom_admin/static/gen/

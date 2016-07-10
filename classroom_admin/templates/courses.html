@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-  <button id="create-courses">Create courses</button>
+  <button id="create-courses" v-on:click="create">Create courses</button>
   ${ message }
   <ul>
     {% for course in courses %}
