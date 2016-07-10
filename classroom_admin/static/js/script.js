@@ -6,7 +6,10 @@ new Vue({
   data: {
     isLoading: false,
     checkboxes: document.querySelectorAll('input[class=course]'),
-    coursesArray: []
+    coursesArray: [],
+    requestSucceeded: false,
+    requestFailed: false,
+    errorMessage: ''
   },
   methods: {
     setAllCheckboxes: function(event) {
@@ -27,24 +30,31 @@ new Vue({
       }
     },
     create: function (event) {
-      console.log('Sending request...');
-      this.isLoading = true;
+      if (this.coursesArray.length > 0) {
+        console.log('Sending request...');
+        this.requestFailed = false;
+        this.requestSucceeded = false;
+        this.isLoading = true;
 
-      // Creating form data for sending courses
-      var formData = new FormData();
-      formData.append('courses', this.coursesArray);
-      this.coursesArray = [];
+        // Creating form data for sending courses
+        var formData = new FormData();
+        formData.append('courses', this.coursesArray);
+        this.coursesArray = [];
 
-      this.$http.post('/create', formData)
-      .then(function(response) {
-        console.log('Request ok:', response);
-          // success callback
-        this.isLoading = false;
-      }, function(response) {
-        console.log('Got an error:', response);
-          // error callback
-        this.isLoading = false;
-      });
+        this.$http.post('/create', formData)
+        .then(function(response) {
+          console.log('Request ok:', response);
+            // success callback
+          this.isLoading = false;
+          this.requestSucceeded = true;
+        }, function(response) {
+          console.log('Got an error:', response);
+            // error callback
+          this.errorMessage = response.data;
+          this.requestFailed = true;
+          this.isLoading = false;
+        });
+      }
     }
   }
 })

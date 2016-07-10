@@ -5,6 +5,16 @@
 {% endblock %}
 
 {% block content %}
+  <div class="toast toast-success" v-show="requestSucceeded">
+      <button class="btn btn-clear float-right"></button>
+      All classrooms have been created!
+  </div>
+  <div class="toast toast-danger" v-show="requestFailed">
+      <button class="btn btn-clear float-right"></button>
+      An error occurred while creating classrooms: <br/>
+      ${ errorMessage }
+  </div>
+
   <table class="table table-striped table-hover">
     <thead>
       <tr>
