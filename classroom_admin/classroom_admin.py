@@ -164,7 +164,7 @@ def create():
                 print('!'*80)
                 print('!'*80)
                 print('!'*80)
-                # members_batch.execute(http=http_auth)
+                members_batch.execute(http=http_auth)
                 # Set status of the app as free again
                 process_status.creating_classrooms = False
                 print('+'*80)
