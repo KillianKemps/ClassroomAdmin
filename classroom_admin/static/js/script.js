@@ -44,17 +44,42 @@ new Vue({
         this.$http.post('/create', formData)
         .then(function(response) {
           console.log('Request ok:', response);
-            // success callback
-          this.isLoading = false;
-          this.requestSucceeded = true;
+          // success callback
+          if (response.status === 202) {
+            this.poll();
+          }
+          else {
+            this.isLoading = false;
+            this.requestSucceeded = true;
+          }
         }, function(response) {
           console.log('Got an error:', response);
-            // error callback
+          // error callback
           this.errorMessage = response.data;
           this.requestFailed = true;
           this.isLoading = false;
         });
       }
+    },
+    poll: function (event) {
+      this.$http.get('/poll', {timeout: 1000})
+      .then(function(response) {
+        console.log('Poll request ok:', response);
+        // success callback
+        if (response.status === 202) {
+          window.setTimeout(this.poll(), 1000);
+        }
+        else {
+          this.isLoading = false;
+          this.requestSucceeded = true;
+        }
+      }, function(response) {
+        console.log('Poll: Got an error:', response);
+        // error callback
+        this.errorMessage = response.data;
+        this.requestFailed = true;
+        this.isLoading = false;
+      });
     }
   }
 })

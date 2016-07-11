@@ -1,5 +1,6 @@
 import csv
 import os
+import threading
 
 import simplejson
 import httplib2
@@ -26,6 +27,9 @@ app.config['ALLOWED_EXTENSIONS'] = set(['csv'])
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
+
+class process_status():
+    creating_classrooms = False
 
 
 @app.route('/')
@@ -58,7 +62,7 @@ def create():
 
     emails = {}
 
-    def get_emails(mailing_list):
+    def get_emails(http_auth, mailing_list):
         print('$'*80)
         if mailing_list in emails:
             print('Mailing list already exist')
@@ -70,14 +74,13 @@ def create():
             emails[mailing_list] = students.get('members', [])
             return emails[mailing_list]
 
-    if 'credentials' not in flask.session:
-        return flask.redirect(flask.url_for('oauth2callback'))
+    # Convert parameter into list of integer
+    selected_courses = flask.request.form['courses']
+    selected_courses = [int(i) for i in selected_courses.split(',')]
 
-    credentials = client.OAuth2Credentials.from_json(flask.session['credentials'])
-
-    if credentials.access_token_expired:
-        return flask.redirect(flask.url_for('oauth2callback'))
-    else:
+    def create_classrooms(selected_courses):
+        # Set status of the app as being busy
+        process_status.creating_classrooms = True
         http_auth = credentials.authorize(httplib2.Http())
         classroom_service = discovery.build('classroom', 'v1', http=http_auth)
         if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')) :
@@ -103,9 +106,6 @@ def create():
                 print('M'*80)
                 print('M'*80)
                 print('M'*80)
-                # Convert parameter into list of integer
-                selected_courses = flask.request.form['courses']
-                selected_courses = [int(i) for i in selected_courses.split(',')]
 
                 for index, course in enumerate(reader):
                     print('%'*80)
@@ -141,7 +141,7 @@ def create():
                             teacher['courseId']))
 
                         # Add students to course
-                        members = get_emails(course['Liste de diffusion'])
+                        members = get_emails(http_auth, course['Liste de diffusion'])
 
                         for member in members:
                             if member['email'].endswith('@etu-webschoolfactory.fr'):
@@ -164,12 +164,32 @@ def create():
                 print('!'*80)
                 print('!'*80)
                 print('!'*80)
-                members_batch.execute(http=http_auth)
+                # members_batch.execute(http=http_auth)
+                # Set status of the app as free again
+                process_status.creating_classrooms = False
                 print('+'*80)
                 print('+'*80)
                 print('+'*80)
 
-        return render_template('success.html')
+    if 'credentials' not in flask.session:
+        return flask.redirect(flask.url_for('oauth2callback'))
+
+    credentials = client.OAuth2Credentials.from_json(flask.session['credentials'])
+
+    if credentials.access_token_expired:
+        return flask.redirect(flask.url_for('oauth2callback'))
+    else:
+        threading.Thread(target=create_classrooms, args=(selected_courses,)).start()
+        return render_template('success.html'), 202
+
+@app.route('/poll')
+def poll():
+
+    print('Is creating classrooms: ', process_status.creating_classrooms)
+    if process_status.creating_classrooms:
+        return render_template('success.html'), 202
+    else:
+        return render_template('success.html'), 200
 
 @app.route('/read')
 def read():
