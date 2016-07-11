@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-  <form action="upload" method="post" enctype="multipart/form-data">
-    Select csv to upload:
-    <input type="file" name="file" id="file">
-    <input type="submit" value="Upload CSV" name="submit">
-  </form>
+  <div class="empty">
+    <form action="upload" method="post" enctype="multipart/form-data">
+      <span class="empty-title">Select CSV to upload:</span>
+      <input type="file" name="file" id="file">
+      <input type="submit" value="Upload CSV" name="submit" class="empty-action btn btn-primary">
+    </form>
+  </div>
+
 {% endblock %}
