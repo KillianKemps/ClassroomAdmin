@@ -67,7 +67,7 @@ new Vue({
         console.log('Poll request ok:', response);
         // success callback
         if (response.status === 202) {
-          window.setTimeout(this.poll(), 1000);
+          window.setTimeout(this.poll(), 5000);
         }
         else {
           this.isLoading = false;
