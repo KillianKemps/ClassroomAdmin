@@ -11,8 +11,6 @@ Software Requirements:
 
 To install these on Ubuntu 16.04 follow [this tutorial](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-16-04) and execute [these two command-lines](https://github.com/docker/compose/releases/tag/1.7.1)
 
-==
-
 API Requirements:
   - Admin SDK API enabled
   - Gmail API enabled
@@ -20,8 +18,6 @@ API Requirements:
   - Client ID for Web Server
 
 To get your client ID, go on [Google's Console API](https://console.developers.google.com/apis/) and follow the wizard.
-
-==
 
 Once the requirements installed, simply clone this directory, add your Google API secret and launch docker-compose.
 
