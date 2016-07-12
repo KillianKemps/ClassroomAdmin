@@ -58,11 +58,11 @@ def send_email(http_auth, email_info):
         message = (service.users().messages().send(userId='me', body=body)
         .execute())
         print('Message Id: %s' % message['id'])
-        return 'he'
+        return message
     except errors.HttpError as error:
         print('An error occurred: %s' % error)
 
-    return 'he'
+    return message
 
 # Callback function for each user been added to a classroom
 def callback(request_id, response, exception):
