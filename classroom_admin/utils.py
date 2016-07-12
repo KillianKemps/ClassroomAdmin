@@ -8,5 +8,3 @@ def allowed_file(filename):
 
 class process_status():
     creating_classrooms = False
-
-
