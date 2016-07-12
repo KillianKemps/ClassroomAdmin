@@ -62,12 +62,12 @@ new Vue({
       }
     },
     poll: function (event) {
-      this.$http.get('/poll', {timeout: 1000})
+      this.$http.get('/poll', {timeout: 5000})
       .then(function(response) {
         console.log('Poll request ok:', response);
         // success callback
         if (response.status === 202) {
-          window.setTimeout(this.poll(), 5000);
+          window.setTimeout(this.poll, 5000);
         }
         else {
           this.isLoading = false;
