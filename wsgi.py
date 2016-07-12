@@ -1,6 +1,6 @@
 import uuid
 
-from classroom_admin.classroom_admin import application
+from classroom_admin import application
 
 application.secret_key = str(uuid.uuid4())
 application.debug = False
