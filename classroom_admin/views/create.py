@@ -4,6 +4,7 @@ import threading
 import httplib2
 import base64
 from email.mime.text import MIMEText
+import simplejson
 
 import flask
 from flask import render_template
@@ -12,6 +13,7 @@ from oauth2client import client
 
 from .. import app
 from ..utils import process_status
+from ..templates.email import TEMPLATE
 
 
 EMAILS = {}
@@ -30,42 +32,35 @@ def get_emails(http_auth, mailing_list):
         EMAILS[mailing_list] = students.get('members', [])
         return EMAILS[mailing_list]
 
-@app.route('/send')
-def send_email():
-    print('hey')
-    if 'credentials' not in flask.session:
-        return flask.redirect(flask.url_for('oauth2callback'))
+def send_email(http_auth, email_info):
+    service = discovery.build('gmail', 'v1', http=http_auth)
 
-    credentials = client.OAuth2Credentials.from_json(
-        flask.session['credentials'])
+    text = TEMPLATE.format(
+        email_info['civilite'],
+        email_info['prenom'],
+        email_info['nom'],
+        email_info['lien'],
+        email_info['adresse_email'],
+        email_info['cours'],
+        email_info['promotion'],
+        email_info['liste_diffusion'],
+        email_info['code'])
 
-    if credentials.access_token_expired:
-        return flask.redirect(flask.url_for('oauth2callback'))
-    else:
-        http_auth = credentials.authorize(httplib2.Http())
-        service = discovery.build('gmail', 'v1', http=http_auth)
+    message = MIMEText(text, 'html')
+    message['To'] = email_info['adresse_email']
+    message['From'] = 'me'
+    message['Subject'] = 'Création du classroom {0}'.format(email_info['cours'])
+    raw = base64.urlsafe_b64encode(message.as_bytes())
+    raw = raw.decode()
+    body = {'raw': raw}
 
-        text = render_template(
-            'email.html',
-            civilite='Monsieur',
-            prenom='John',
-            nom='Doe')
-
-        message = MIMEText(text, 'html')
-        message['To'] = 'killian.kemps@etu-webschoolfactory.fr'
-        message['From'] = 'me'
-        message['Subject'] = 'test api'
-        raw = base64.urlsafe_b64encode(message.as_bytes())
-        raw = raw.decode()
-        body = {'raw': raw}
-
-        try:
-            message = (service.users().messages().send(userId='me', body=body)
-            .execute())
-            print('Message Id: %s' % message['id'])
-            return 'he'
-        except errors.HttpError as error:
-            print('An error occurred: %s' % error)
+    try:
+        message = (service.users().messages().send(userId='me', body=body)
+        .execute())
+        print('Message Id: %s' % message['id'])
+        return 'he'
+    except errors.HttpError as error:
+        print('An error occurred: %s' % error)
 
     return 'he'
 
@@ -78,7 +73,8 @@ def callback(request_id, response, exception):
                 response['userId']))
         else:
             print('Error adding user "{0}" to the course: {1}'.format(
-                response['userId'], exception))
+                request_id,
+                error))
     else:
         print('User "{0}" added as a {1} to the course.'.format(
             response['userId'], response['role']))
@@ -123,22 +119,41 @@ def create_classrooms(selected_courses, credentials):
 
                     # Add teacher to course
                     teacher = {
-                        'courseId': result['id'],
                         'userId': course['Mail wsf de l\'intervenant'],
-                        'role': 'TEACHER'
                     }
 
-                    request = classroom_service \
-                        .invitations().create(body=teacher)
+                    try:
+                        teacher = classroom_service.courses() \
+                            .teachers().create(
+                                courseId=result['id'],
+                                body=teacher).execute()
+                        print (u'User {0} was added as a teacher to '
+                                'the course with ID "{1}"'
+                                .format(teacher.get('profile')
+                                    .get('name').get('fullName'),
+                                    result['id']))
+                    except errors.HttpError as e:
+                        error = simplejson.loads(e.content).get('error')
+                        if(error.get('code') == 409):
+                            print(u'User "{0}" is already a member '
+                                'of this course.'.format(
+                                teacher['userId']))
+                        else:
+                            raise
 
-                    members_batch.add(
-                        request,
-                        request_id=teacher['userId'] + str(index))
+                    email_info = {
+                        'civilite': course['Civilité'],
+                        'prenom': course['Prenom de l\'intervenant'],
+                        'nom': course['Nom de l\'intervenant'],
+                        'lien': result['alternateLink'],
+                        'adresse_email': course['Mail wsf de l\'intervenant'],
+                        'promotion': course['Promotion'],
+                        'cours': course['Cours'],
+                        'liste_diffusion': course['Liste de diffusion'],
+                        'code': result['enrollmentCode']
+                    }
 
-                    print (u'User {0} was added to the batch as a teacher '
-                            'for course with ID "{1}"'
-                        .format(teacher['userId'],
-                        teacher['courseId']))
+                    send_email(http_auth, email_info)
 
                     # Add students to course
                     members = get_emails(
