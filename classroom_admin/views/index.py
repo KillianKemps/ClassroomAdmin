@@ -13,13 +13,15 @@ def index():
     if 'credentials' not in flask.session:
         return flask.redirect(flask.url_for('oauth2callback'))
 
-    credentials = client.OAuth2Credentials.from_json(flask.session['credentials'])
+    credentials = client.OAuth2Credentials.from_json(
+        flask.session['credentials'])
 
     if credentials.access_token_expired:
         return flask.redirect(flask.url_for('oauth2callback'))
     else:
-        if os.path.isfile(os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')) :
-            with open(os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')) as csvfile:
+        filename = os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')
+        if os.path.isfile(filename) :
+            with open(filename) as csvfile:
                 reader = csv.DictReader(csvfile)
                 return render_template('courses.html', courses=reader)
         else:
