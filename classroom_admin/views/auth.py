@@ -7,6 +7,7 @@ from .. import app
 SCOPES = [
     'https://www.googleapis.com/auth/classroom.courses',
     'https://www.googleapis.com/auth/classroom.rosters',
+    'https://www.googleapis.com/auth/gmail.send',
     'https://www.googleapis.com/auth/admin.directory.group.readonly']
 
 @app.route('/oauth2callback')

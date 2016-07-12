@@ -2,6 +2,8 @@ import csv
 import os
 import threading
 import httplib2
+import base64
+from email.mime.text import MIMEText
 
 import flask
 from flask import render_template
@@ -27,6 +29,45 @@ def get_emails(http_auth, mailing_list):
         students = service.members().list(groupKey=mailing_list).execute()
         EMAILS[mailing_list] = students.get('members', [])
         return EMAILS[mailing_list]
+
+@app.route('/send')
+def send_email():
+    print('hey')
+    if 'credentials' not in flask.session:
+        return flask.redirect(flask.url_for('oauth2callback'))
+
+    credentials = client.OAuth2Credentials.from_json(
+        flask.session['credentials'])
+
+    if credentials.access_token_expired:
+        return flask.redirect(flask.url_for('oauth2callback'))
+    else:
+        http_auth = credentials.authorize(httplib2.Http())
+        service = discovery.build('gmail', 'v1', http=http_auth)
+
+        text = render_template(
+            'email.html',
+            civilite='Monsieur',
+            prenom='John',
+            nom='Doe')
+
+        message = MIMEText(text, 'html')
+        message['To'] = 'killian.kemps@etu-webschoolfactory.fr'
+        message['From'] = 'me'
+        message['Subject'] = 'test api'
+        raw = base64.urlsafe_b64encode(message.as_bytes())
+        raw = raw.decode()
+        body = {'raw': raw}
+
+        try:
+            message = (service.users().messages().send(userId='me', body=body)
+            .execute())
+            print('Message Id: %s' % message['id'])
+            return 'he'
+        except errors.HttpError as error:
+            print('An error occurred: %s' % error)
+
+    return 'he'
 
 # Callback function for each user been added to a classroom
 def callback(request_id, response, exception):
