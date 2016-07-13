@@ -24,6 +24,7 @@ def upload():
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv'))
 
         print('New file uploaded')
+        app.logger.info('New file uploaded')
         # Redirect the user to the uploaded_file route, which
         # will basicaly show on the browser the uploaded file
         return flask.redirect(flask.url_for('index'))

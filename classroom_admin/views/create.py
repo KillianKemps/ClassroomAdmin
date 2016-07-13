@@ -24,9 +24,11 @@ def get_emails(http_auth, mailing_list):
     print('$'*80)
     if mailing_list in EMAILS:
         print('Mailing list already exist')
+        app.logger.info('Mailing list already exist')
         return EMAILS[mailing_list]
     else:
         print('Getting mailing list')
+        app.logger.info('Getting mailing list')
         service = discovery.build('admin', 'directory_v1', http=http_auth)
         students = service.members().list(groupKey=mailing_list).execute()
         EMAILS[mailing_list] = students.get('members', [])
@@ -58,9 +60,11 @@ def send_email(http_auth, email_info):
         message = (service.users().messages().send(userId='me', body=body)
         .execute())
         print('Message Id: %s' % message['id'])
+        app.logger.info('Message Id: %s' % message['id'])
         return message
     except errors.HttpError as error:
         print('An error occurred: %s' % error)
+        app.logger.error('An error occurred: %s' % error)
 
     return message
 
@@ -71,12 +75,19 @@ def callback(request_id, response, exception):
         if(error.get('code') == 409):
             print('User "{0}" is already a member of this course.'.format(
                 response['userId']))
+            app.logger.info('User "{0}" is already a member of '
+                'this course.'.format(response['userId']))
         else:
             print('Error adding user "{0}" to the course: {1}'.format(
                 request_id,
                 error))
+            app.logger.info('Error adding user "{0}" to the course: {1}'.format(
+                request_id,
+                error))
     else:
         print('User "{0}" added as a {1} to the course.'.format(
+            response['userId'], response['role']))
+        app.logger.info('User "{0}" added as a {1} to the course.'.format(
             response['userId'], response['role']))
 
 
@@ -99,6 +110,7 @@ def create_classrooms(selected_courses, credentials):
                 if index in selected_courses:
                     print('%'*80)
                     print('Creating classroom ', index)
+                    app.logger.info('Creating classroom %s', index)
 
                     # Create course
                     body = {
@@ -116,6 +128,7 @@ def create_classrooms(selected_courses, credentials):
 
                     print('*'*80)
                     print(result)
+                    app.logger.info(result)
 
                     # Add teacher to course
                     teacher = {
@@ -127,7 +140,12 @@ def create_classrooms(selected_courses, credentials):
                             .teachers().create(
                                 courseId=result['id'],
                                 body=teacher).execute()
-                        print (u'User {0} was added as a teacher to '
+                        print(u'User {0} was added as a teacher to '
+                                'the course with ID "{1}"'
+                                .format(teacher.get('profile')
+                                    .get('name').get('fullName'),
+                                    result['id']))
+                        app.logger.info(u'User {0} was added as a teacher to '
                                 'the course with ID "{1}"'
                                 .format(teacher.get('profile')
                                     .get('name').get('fullName'),
@@ -136,6 +154,9 @@ def create_classrooms(selected_courses, credentials):
                         error = simplejson.loads(e.content).get('error')
                         if(error.get('code') == 409):
                             print(u'User "{0}" is already a member '
+                                'of this course.'.format(
+                                teacher['userId']))
+                            app.logger.error(u'User "{0}" is already a member '
                                 'of this course.'.format(
                                 teacher['userId']))
                         else:
@@ -178,20 +199,29 @@ def create_classrooms(selected_courses, credentials):
                                        'a student for course with ID "{1}"'
                                     .format(student['userId'],
                                     student['courseId']))
+                                app.logger.info(u'User {0} was added to the '
+                                    'batch as a student for course '
+                                    'with ID "{1}"'
+                                    .format(student['userId'],
+                                    student['courseId']))
                             except KeyError as e:
                                 print('The user has already been added: ', e)
+                                app.logger.error('The user has already '
+                                    'been added: %s', e)
 
             members_batch.execute(http=http_auth)
             # Set status of the app as free again
             process_status.creating_classrooms = False
             print('*'*80)
             print('Finished creating all classrooms')
+            app.logger.info('Finished creating all classrooms')
 
 
 @app.route('/create', methods=['POST'])
 def create():
     print('*'*80)
     print('Preparing to create classrooms')
+    app.logger.info('Preparing to create classrooms')
 
     # Convert parameter into list of integer
     selected_courses = flask.request.form['courses']
