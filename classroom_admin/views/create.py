@@ -20,7 +20,6 @@ EMAILS = {}
 
 # Get individual emails from mailing list
 def get_emails(http_auth, mailing_list):
-    print('$'*80)
     if mailing_list in EMAILS:
         print('Mailing list already exist')
         app.logger.info('Mailing list already exist')
@@ -33,6 +32,7 @@ def get_emails(http_auth, mailing_list):
         EMAILS[mailing_list] = students.get('members', [])
         return EMAILS[mailing_list]
 
+# Create email object
 def create_email(email_info, http_auth):
     service = discovery.build('gmail', 'v1', http=http_auth)
     EMAIL_CONF = app.config['EMAIL_CONF']
@@ -130,14 +130,13 @@ def create_classrooms(selected_courses, credentials):
             emails_batch = email_service.new_batch_http_request(
                 callback=email_callback)
 
+            # Enumerate in courses from CSV
             for index, course in enumerate(reader):
                 if index in selected_courses:
                     print('Creating classroom ', index)
                     app.logger.info('Creating classroom %s', index)
 
-                    print('!'*80)
                     COURSE_CONF = app.config['COURSE_CONF']
-                    print(COURSE_CONF)
 
                     # Create course
                     body = {
@@ -148,9 +147,6 @@ def create_classrooms(selected_courses, credentials):
                                 'section-values']]),
                         'courseState': 'ACTIVE'
                     }
-
-                    print(':'*80)
-                    print(body)
 
                     created_course = classroom_service.courses() \
                         .create(body=body).execute()
@@ -168,6 +164,7 @@ def create_classrooms(selected_courses, credentials):
                             courseId=created_course['id'],
                             body=teacher)
 
+                    # Add teacher request to batch
                     teachers_batch.add(teacher, request_id=str(index))
 
                     # Merge created course and initial course infos
@@ -175,6 +172,7 @@ def create_classrooms(selected_courses, credentials):
                     email_info.update(course)
                     email_info.update(created_course)
 
+                    # Give course infos to email creation
                     emails_batch.add(create_email(email_info, http_auth),
                         request_id=str(index))
 
@@ -214,19 +212,18 @@ def create_classrooms(selected_courses, credentials):
                                 app.logger.error('The user has already '
                                     'been added: %s', e)
 
+            # Execute all batches
             teachers_batch.execute(http=http_auth)
             members_batch.execute(http=http_auth)
             emails_batch.execute(http=http_auth)
             # Set status of the app as free again
             process_status.creating_classrooms = False
-            print('*'*80)
             print('Finished creating all classrooms')
             app.logger.info('Finished creating all classrooms')
 
 
 @app.route('/create', methods=['POST'])
 def create():
-    print('*'*80)
     print('Preparing to create classrooms')
     app.logger.info('Preparing to create classrooms')
 
