@@ -1,0 +1,8 @@
+ownerId: Owner
+name: Name
+section-format: '{0} - {1} - {2}'
+section-values:
+  - Year
+  - Domain
+  - Promotion
+teacher: Teacher Email
