@@ -51,5 +51,5 @@ pip install -r requirements-dev.txt
 
 Run tests
 ```
-make tests
+make test
 ```
