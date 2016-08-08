@@ -13,7 +13,6 @@ from oauth2client import client
 
 from .. import app
 from ..utils import process_status
-from ..templates.email import TEMPLATE
 
 
 EMAILS = {}
@@ -36,22 +35,16 @@ def get_emails(http_auth, mailing_list):
 
 def create_email(email_info, http_auth):
     service = discovery.build('gmail', 'v1', http=http_auth)
+    EMAIL_CONF = app.config['EMAIL_CONF']
 
-    text = TEMPLATE.format(
-        email_info['civilite'],
-        email_info['prenom'],
-        email_info['nom'],
-        email_info['lien'],
-        email_info['adresse_email'],
-        email_info['cours'],
-        email_info['promotion'],
-        email_info['liste_diffusion'],
-        email_info['code'])
+    text = EMAIL_CONF['content-format'].format(
+        *[email_info[val] for val in EMAIL_CONF['content-value']])
 
     message = MIMEText(text, 'html')
-    message['To'] = email_info['adresse_email']
+    message['To'] = email_info[EMAIL_CONF['to']]
     message['From'] = 'me'
-    message['Subject'] = 'Création du classroom {0}'.format(email_info['cours'])
+    message['Subject'] = EMAIL_CONF['subject-format'].format(
+        email_info[EMAIL_CONF['subject-value']])
     raw = base64.urlsafe_b64encode(message.as_bytes())
     raw = raw.decode()
     body = {'raw': raw}
@@ -156,11 +149,11 @@ def create_classrooms(selected_courses, credentials):
                     print(':'*80)
                     print(body)
 
-                    result = classroom_service.courses() \
+                    created_course = classroom_service.courses() \
                         .create(body=body).execute()
 
-                    print(result)
-                    app.logger.info(result)
+                    print(created_course)
+                    app.logger.info(created_course)
 
                     # Add teacher to course
                     teacher = {
@@ -169,22 +162,15 @@ def create_classrooms(selected_courses, credentials):
 
                     teacher = classroom_service.courses() \
                         .teachers().create(
-                            courseId=result['id'],
+                            courseId=created_course['id'],
                             body=teacher)
 
                     teachers_batch.add(teacher, request_id=str(index))
 
-                    email_info = {
-                        'civilite': course['Civilité'],
-                        'prenom': course['Prenom de l\'intervenant'],
-                        'nom': course['Nom de l\'intervenant'],
-                        'lien': result['alternateLink'],
-                        'adresse_email': course['Mail wsf de l\'intervenant'],
-                        'promotion': course['Promotion'],
-                        'cours': course['Cours'],
-                        'liste_diffusion': course['Liste de diffusion'],
-                        'code': result['enrollmentCode']
-                    }
+                    # Merge created course and initial course infos
+                    email_info = {}
+                    email_info.update(course)
+                    email_info.update(created_course)
 
                     emails_batch.add(create_email(email_info, http_auth),
                         request_id=str(index))
@@ -197,14 +183,15 @@ def create_classrooms(selected_courses, credentials):
                         if member['email'].endswith(
                                 COURSE_CONF['member-email-domain']):
                             student = {
-                                'courseId': result['id'],
+                                'courseId': created_course['id'],
                                 'userId': member['email'],
                             }
 
                             try:
                                 request = classroom_service.courses() \
                                     .students().create(body=student,
-                                        enrollmentCode=result['enrollmentCode'],
+                                        enrollmentCode=created_course[
+                                            'enrollmentCode'],
                                         courseId=student['courseId'])
                                 members_batch.add(
                                     request,

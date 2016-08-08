@@ -18,6 +18,10 @@ f = open('classroom_admin/conf/' + 'course.yaml')
 app.config['COURSE_CONF'] = yaml.safe_load(f)
 f.close()
 
+f = open('classroom_admin/conf/' + 'email.yaml')
+app.config['EMAIL_CONF'] = yaml.safe_load(f)
+f.close()
+
 assets.debug = True
 app.config['ASSETS_DEBUG'] = True
 

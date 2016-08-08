@@ -1,0 +1,16 @@
+to: to_email
+subject-format: 'Subject: {0}'
+subject-value: course
+content-value:
+  - Surname
+  - Name
+  - alternateLink
+content-format:
+  >
+    <html>
+    <p>Hello {0} {1},</p>
+
+    <p>You can access the created course at {2]</p>
+
+    </html>
+
