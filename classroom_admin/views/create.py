@@ -34,7 +34,7 @@ def get_emails(http_auth, mailing_list):
         EMAILS[mailing_list] = students.get('members', [])
         return EMAILS[mailing_list]
 
-def send_email(http_auth, email_info):
+def create_email(email_info, http_auth):
     service = discovery.build('gmail', 'v1', http=http_auth)
 
     text = TEMPLATE.format(
@@ -56,20 +56,11 @@ def send_email(http_auth, email_info):
     raw = raw.decode()
     body = {'raw': raw}
 
-    try:
-        message = (service.users().messages().send(userId='me', body=body)
-        .execute())
-        print('Message Id: %s' % message['id'])
-        app.logger.info('Message Id: %s' % message['id'])
-        return message
-    except errors.HttpError as error:
-        print('An error occurred: %s' % error)
-        app.logger.error('An error occurred: %s' % error)
-
+    message = service.users().messages().send(userId='me', body=body)
     return message
 
 # Callback function for each user been added to a classroom
-def callback(request_id, response, exception):
+def member_callback(request_id, response, exception):
     if exception is not None:
         error = simplejson.loads(exception.content).get('error')
         if(error.get('code') == 409):
@@ -90,12 +81,20 @@ def callback(request_id, response, exception):
         app.logger.info('User "{0}" added as a student to the course.'.format(
             response['userId']))
 
+# Callback function for emails sent to teachers
+def email_callback(request_id, response, exception):
+    if exception is not None:
+        error = simplejson.loads(exception.content).get('error')
+        print('An error occurred while sending email: %s' % error)
+        app.logger.error('An error occurred while sending email: %s' % error)
+
 
 def create_classrooms(selected_courses, credentials):
     # Set status of the app as being busy
     process_status.creating_classrooms = True
     http_auth = credentials.authorize(httplib2.Http())
     classroom_service = discovery.build('classroom', 'v1', http=http_auth)
+    email_service = discovery.build('gmail', 'v1', http=http_auth)
     filename = os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')
 
     if os.path.isfile(filename) :
@@ -104,7 +103,11 @@ def create_classrooms(selected_courses, credentials):
 
             # Create batch for classroom requests
             members_batch = classroom_service.new_batch_http_request(
-                callback=callback)
+                callback=member_callback)
+
+            # Create batch for email requests
+            emails_batch = email_service.new_batch_http_request(
+                callback=email_callback)
 
             for index, course in enumerate(reader):
                 if index in selected_courses:
@@ -174,7 +177,8 @@ def create_classrooms(selected_courses, credentials):
                         'code': result['enrollmentCode']
                     }
 
-                    send_email(http_auth, email_info)
+                    emails_batch.add(create_email(email_info, http_auth),
+                        request_id=str(index))
 
                     # Add students to course
                     members = get_emails(
@@ -211,6 +215,7 @@ def create_classrooms(selected_courses, credentials):
                                     'been added: %s', e)
 
             members_batch.execute(http=http_auth)
+            emails_batch.execute(http=http_auth)
             # Set status of the app as free again
             process_status.creating_classrooms = False
             print('*'*80)
