@@ -194,7 +194,8 @@ def create_classrooms(selected_courses, credentials):
                         http_auth, course['Liste de diffusion'])
 
                     for member in members:
-                        if member['email'].endswith('@etu-webschoolfactory.fr'):
+                        if member['email'].endswith(
+                                COURSE_CONF['member-email-domain']):
                             student = {
                                 'courseId': result['id'],
                                 'userId': member['email'],
