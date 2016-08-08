@@ -2,6 +2,41 @@
 
 This application enables to create Google Classrooms in bulk from a CSV file.
 
+## Configuration
+
+Some setup is needed to allow you to create courses and to send emails according to your taste. This configuration allows you to choose values of your CSV file and to format some fields.
+
+Two configuration files templates are available in `conf/`. Simply copy and rename them without `.template` to enable them.
+
+Please see below for details about the configuration values:
+
+### Course
+
+Choose here the values needed among you CSV column names to create a classroom course.
+
+```
+ownerId: Owner's email or ID
+name: Course name
+section-format: Section template
+section-values: Values for section template
+teacher: Teacher email or ID
+member-email-domain: Email domain of only students
+```
+
+### Email
+
+Choose here the values to access in your CSV file and in the `course` object returned by the Google API: https://developers.google.com/classroom/reference/rest/v1/courses#Course
+
+**Warning: You should not name your CSV columns with the same name as the keys of the `course` object. It will be overriden.**
+
+
+```
+to: Email to send to
+subject-format: Subject template
+subject-value: Value to use in subject template
+content-value: Values to be used in content template
+content-format: Content template
+```
 
 ## Installation
 
