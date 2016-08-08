@@ -74,21 +74,21 @@ def callback(request_id, response, exception):
         error = simplejson.loads(exception.content).get('error')
         if(error.get('code') == 409):
             print('User "{0}" is already a member of this course.'.format(
-                response['userId']))
-            app.logger.info('User "{0}" is already a member of '
-                'this course.'.format(response['userId']))
+                request_id))
+            app.logger.error('User "{0}" is already a member of '
+                'this course.'.format(request_id))
         else:
             print('Error adding user "{0}" to the course: {1}'.format(
                 request_id,
                 error))
-            app.logger.info('Error adding user "{0}" to the course: {1}'.format(
+            app.logger.error('Error adding user "{0}" to the course: {1}'.format(
                 request_id,
                 error))
     else:
-        print('User "{0}" added as a {1} to the course.'.format(
-            response['userId'], response['role']))
-        app.logger.info('User "{0}" added as a {1} to the course.'.format(
-            response['userId'], response['role']))
+        print('User "{0}" added as a student to the course.'.format(
+            response['userId']))
+        app.logger.info('User "{0}" added as a student to the course.'.format(
+            response['userId']))
 
 
 def create_classrooms(selected_courses, credentials):
@@ -185,12 +185,13 @@ def create_classrooms(selected_courses, credentials):
                             student = {
                                 'courseId': result['id'],
                                 'userId': member['email'],
-                                'role': 'STUDENT'
                             }
 
                             try:
-                                request = classroom_service \
-                                    .invitations().create(body=student)
+                                request = classroom_service.courses() \
+                                    .students().create(body=student,
+                                        enrollmentCode=result['enrollmentCode'],
+                                        courseId=student['courseId'])
                                 members_batch.add(
                                     request,
                                     request_id=member['email'] + str(index))
