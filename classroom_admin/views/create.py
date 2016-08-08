@@ -140,16 +140,21 @@ def create_classrooms(selected_courses, credentials):
                     print('Creating classroom ', index)
                     app.logger.info('Creating classroom %s', index)
 
+                    print('!'*80)
+                    COURSE_CONF = app.config['COURSE_CONF']
+                    print(COURSE_CONF)
+
                     # Create course
                     body = {
-                        'ownerId': course['Moderateur'],
-                        'name': course['Cours'],
-                        'section': '{0} - {1} - {2}'.format(
-                            course['Année scolaire'],
-                            course['Domaine'],
-                            course['Promotion']),
+                        'ownerId': course[COURSE_CONF['ownerId']],
+                        'name': course[COURSE_CONF['name']],
+                        'section': COURSE_CONF['section-format'].format(
+                            *[course[val] for val in COURSE_CONF['section-values']]),
                         'courseState': 'ACTIVE'
                     }
+
+                    print(':'*80)
+                    print(body)
 
                     result = classroom_service.courses() \
                         .create(body=body).execute()
@@ -159,7 +164,7 @@ def create_classrooms(selected_courses, credentials):
 
                     # Add teacher to course
                     teacher = {
-                        'userId': course['Mail wsf de l\'intervenant'],
+                        'userId': course[COURSE_CONF['teacher']],
                     }
 
                     teacher = classroom_service.courses() \

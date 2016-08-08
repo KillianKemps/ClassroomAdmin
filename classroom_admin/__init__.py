@@ -1,14 +1,22 @@
 from flask import Flask
 from flask_assets import Environment
 
+import yaml
+
 
 app = Flask(__name__)
 assets = Environment(app)
 
 # This is the path to the upload directory
 app.config['UPLOAD_FOLDER'] = 'uploads/'
+# This is the path to the configuration directory
+app.config['CONF_FOLDER'] = 'classroom_admin/conf/'
 # These are the extension that we are accepting to be uploaded
 app.config['ALLOWED_EXTENSIONS'] = set(['csv'])
+
+f = open('classroom_admin/conf/' + 'course.yaml')
+app.config['COURSE_CONF'] = yaml.safe_load(f)
+f.close()
 
 assets.debug = True
 app.config['ASSETS_DEBUG'] = True

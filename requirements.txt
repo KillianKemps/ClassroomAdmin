@@ -7,8 +7,10 @@ itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23
 oauth2client==2.2.0
+pyaml==15.8.2
 pyasn1==0.1.9
 pyasn1-modules==0.0.8
+PyYAML==3.11
 rsa==3.4.2
 simplejson==3.8.2
 six==1.10.0
