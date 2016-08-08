@@ -90,3 +90,7 @@ ENV/
 
 # Ignore generated assets
 classroom_admin/static/gen/
+
+# App configuration
+classroom_admin/conf/email.yaml
+classroom_admin/conf/course.yaml
