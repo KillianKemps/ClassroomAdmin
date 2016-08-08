@@ -81,6 +81,28 @@ def member_callback(request_id, response, exception):
         app.logger.info('User "{0}" added as a student to the course.'.format(
             response['userId']))
 
+# Callback function for each teacher been added to a classroom
+def teacher_callback(request_id, response, exception):
+    if exception is not None:
+        error = simplejson.loads(exception.content).get('error')
+        if(error.get('code') == 409):
+            print('Teacher "{0}" is already a member of this course.'.format(
+                request_id))
+            app.logger.error('Teacher "{0}" is already a member of '
+                'this course.'.format(request_id))
+        else:
+            print('Error adding teacher "{0}" to the course: {1}'.format(
+                request_id,
+                error))
+            app.logger.error('Error adding teacher "{0}" to the course: {1}'.format(
+                request_id,
+                error))
+    else:
+        print('User "{0}" added as a teacher to the course.'.format(
+            response['userId']))
+        app.logger.info('User "{0}" added as a teacher to the course.'.format(
+            response['userId']))
+
 # Callback function for emails sent to teachers
 def email_callback(request_id, response, exception):
     if exception is not None:
@@ -101,9 +123,13 @@ def create_classrooms(selected_courses, credentials):
         with open(filename) as csvfile:
             reader = csv.DictReader(csvfile)
 
-            # Create batch for classroom requests
+            # Create batch for classroom students requests
             members_batch = classroom_service.new_batch_http_request(
                 callback=member_callback)
+
+            # Create batch for classroom teachers requests
+            teachers_batch = classroom_service.new_batch_http_request(
+                callback=teacher_callback)
 
             # Create batch for email requests
             emails_batch = email_service.new_batch_http_request(
@@ -111,7 +137,6 @@ def create_classrooms(selected_courses, credentials):
 
             for index, course in enumerate(reader):
                 if index in selected_courses:
-                    print('%'*80)
                     print('Creating classroom ', index)
                     app.logger.info('Creating classroom %s', index)
 
@@ -129,7 +154,6 @@ def create_classrooms(selected_courses, credentials):
                     result = classroom_service.courses() \
                         .create(body=body).execute()
 
-                    print('*'*80)
                     print(result)
                     app.logger.info(result)
 
@@ -138,32 +162,12 @@ def create_classrooms(selected_courses, credentials):
                         'userId': course['Mail wsf de l\'intervenant'],
                     }
 
-                    try:
-                        teacher = classroom_service.courses() \
-                            .teachers().create(
-                                courseId=result['id'],
-                                body=teacher).execute()
-                        print(u'User {0} was added as a teacher to '
-                                'the course with ID "{1}"'
-                                .format(teacher.get('profile')
-                                    .get('name').get('fullName'),
-                                    result['id']))
-                        app.logger.info(u'User {0} was added as a teacher to '
-                                'the course with ID "{1}"'
-                                .format(teacher.get('profile')
-                                    .get('name').get('fullName'),
-                                    result['id']))
-                    except errors.HttpError as e:
-                        error = simplejson.loads(e.content).get('error')
-                        if(error.get('code') == 409):
-                            print(u'User "{0}" is already a member '
-                                'of this course.'.format(
-                                teacher['userId']))
-                            app.logger.error(u'User "{0}" is already a member '
-                                'of this course.'.format(
-                                teacher['userId']))
-                        else:
-                            raise
+                    teacher = classroom_service.courses() \
+                        .teachers().create(
+                            courseId=result['id'],
+                            body=teacher)
+
+                    teachers_batch.add(teacher, request_id=str(index))
 
                     email_info = {
                         'civilite': course['Civilité'],
@@ -214,6 +218,7 @@ def create_classrooms(selected_courses, credentials):
                                 app.logger.error('The user has already '
                                     'been added: %s', e)
 
+            teachers_batch.execute(http=http_auth)
             members_batch.execute(http=http_auth)
             emails_batch.execute(http=http_auth)
             # Set status of the app as free again
