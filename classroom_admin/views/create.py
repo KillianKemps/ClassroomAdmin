@@ -65,9 +65,10 @@ def member_callback(request_id, response, exception):
             print('Error adding user "{0}" to the course: {1}'.format(
                 request_id,
                 error))
-            app.logger.error('Error adding user "{0}" to the course: {1}'.format(
-                request_id,
-                error))
+            app.logger.error('Error adding user "{0}" to the course: {1}' \
+                .format(
+                    request_id,
+                    error))
     else:
         print('User "{0}" added as a student to the course.'.format(
             response['userId']))
@@ -87,9 +88,10 @@ def teacher_callback(request_id, response, exception):
             print('Error adding teacher "{0}" to the course: {1}'.format(
                 request_id,
                 error))
-            app.logger.error('Error adding teacher "{0}" to the course: {1}'.format(
-                request_id,
-                error))
+            app.logger.error('Error adding teacher "{0}" to the course: {1}' \
+                .format(
+                    request_id,
+                    error))
     else:
         print('User "{0}" added as a teacher to the course.'.format(
             response['userId']))
@@ -142,7 +144,8 @@ def create_classrooms(selected_courses, credentials):
                         'ownerId': course[COURSE_CONF['ownerId']],
                         'name': course[COURSE_CONF['name']],
                         'section': COURSE_CONF['section-format'].format(
-                            *[course[val] for val in COURSE_CONF['section-values']]),
+                            *[course[val] for val in COURSE_CONF[
+                                'section-values']]),
                         'courseState': 'ACTIVE'
                     }
 
