@@ -37,6 +37,8 @@ cd ClassroomAdmin
 docker-compose up -d
 ```
 
+The app is then accessible either at `http://localhost` or at the hostname
+
 ## Tests
 
 If you want to run tests because you want to contribute do following:
