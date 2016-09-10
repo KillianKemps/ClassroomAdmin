@@ -8,3 +8,12 @@ def allowed_file(filename):
 
 class process_status():
     creating_classrooms = False
+    error = False
+    error_message = ''
+
+def manage_error(error):
+    app.logger.exception('Caught exception {0}'.format(error))
+    process_status.creating_classrooms = False
+    process_status.error = True
+    process_status.error_message = error
+    raise

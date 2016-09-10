@@ -12,7 +12,7 @@ from apiclient import discovery, errors
 from oauth2client import client
 
 from .. import app
-from ..utils import process_status
+from ..utils import process_status, manage_error
 
 
 EMAILS = {}
@@ -28,7 +28,12 @@ def get_emails(http_auth, mailing_list):
         print('Getting mailing list')
         app.logger.info('Getting mailing list')
         service = discovery.build('admin', 'directory_v1', http=http_auth)
-        students = service.members().list(groupKey=mailing_list).execute()
+
+        try:
+            students = service.members().list(groupKey=mailing_list).execute()
+        except Exception as e:
+            manage_error(e)
+
         EMAILS[mailing_list] = students.get('members', [])
         return EMAILS[mailing_list]
 
@@ -49,7 +54,11 @@ def create_email(email_info, http_auth):
     raw = raw.decode()
     body = {'raw': raw}
 
-    message = service.users().messages().send(userId='me', body=body)
+    try:
+        message = service.users().messages().send(userId='me', body=body)
+    except Exception as e:
+        manage_error(e)
+
     return message
 
 # Callback function for each user been added to a classroom
@@ -148,8 +157,11 @@ def create_classrooms(selected_courses, credentials):
                         'courseState': 'ACTIVE'
                     }
 
-                    created_course = classroom_service.courses() \
-                        .create(body=body).execute()
+                    try:
+                        created_course = classroom_service.courses() \
+                            .create(body=body).execute()
+                    except Exception as e:
+                        manage_error(e)
 
                     print(created_course)
                     app.logger.info(created_course)
@@ -213,9 +225,18 @@ def create_classrooms(selected_courses, credentials):
                                     'been added: %s', e)
 
             # Execute all batches
-            teachers_batch.execute(http=http_auth)
-            members_batch.execute(http=http_auth)
-            emails_batch.execute(http=http_auth)
+            try:
+                teachers_batch.execute(http=http_auth)
+            except Exception as e:
+                manage_error(e)
+            try:
+                members_batch.execute(http=http_auth)
+            except Exception as e:
+                manage_error(e)
+            try:
+                emails_batch.execute(http=http_auth)
+            except Exception as e:
+                manage_error(e)
             # Set status of the app as free again
             process_status.creating_classrooms = False
             print('Finished creating all classrooms')

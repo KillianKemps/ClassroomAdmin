@@ -62,6 +62,12 @@ new Vue({
       }
     },
     poll: function (event) {
+      var textarea = document.createElement('textarea');
+      function unescapeHTML(html) {
+          textarea.innerHTML = html;
+          return textarea.textContent;
+      }
+
       this.$http.get('/poll', {timeout: 5000})
       .then(function(response) {
         console.log('Poll request ok:', response);
@@ -76,7 +82,7 @@ new Vue({
       }, function(response) {
         console.log('Poll: Got an error:', response);
         // error callback
-        this.errorMessage = response.data;
+        this.errorMessage = unescapeHTML(response.data);
         this.requestFailed = true;
         this.isLoading = false;
       });

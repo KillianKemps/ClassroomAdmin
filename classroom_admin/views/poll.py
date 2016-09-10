@@ -10,5 +10,12 @@ def poll():
     if process_status.creating_classrooms:
         return render_template('success.html'), 202
     else:
-        return render_template('success.html'), 200
+        if process_status.error:
+            # Reset error before returning it
+            process_status.error = False
+            message = process_status.error_message
+            process_status.error_message = ''
+            return render_template('failure.html', error=message), 500
+        else:
+            return render_template('success.html'), 200
 
