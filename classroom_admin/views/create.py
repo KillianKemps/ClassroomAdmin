@@ -30,7 +30,8 @@ def get_emails(http_auth, mailing_list):
         service = discovery.build('admin', 'directory_v1', http=http_auth)
 
         try:
-            students = service.members().list(groupKey=mailing_list.strip()).execute()
+            clean_mailing_list = mailing_list.strip()
+            students = service.members().list(groupKey=clean_mailing_list).execute()
         except Exception as e:
             manage_error(e)
 
