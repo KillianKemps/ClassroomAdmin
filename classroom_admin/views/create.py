@@ -167,6 +167,23 @@ def create_classrooms(selected_courses, credentials):
                     print(created_course)
                     app.logger.info(created_course)
 
+                    print('Adding alias to classroom ', index)
+                    app.logger.info('Adding alias to classroom  %s', index)
+
+                    alias = 'd:' + created_course['name'] + ' ' + \
+                        created_course['section']
+                    body = {'alias': alias}
+
+                    alias_request = service.courses().aliases().create(
+                        body=body,
+                        courseId=created_course['id']
+                        )
+
+                    try:
+                        created_alias = alias_request.execute()
+                    except Exception as e:
+                        manage_error(e)
+
                     # Add teacher to course
                     teacher = {
                         'userId': course[COURSE_CONF['teacher']],
