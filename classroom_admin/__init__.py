@@ -50,4 +50,4 @@ if not app.debug:
 
 application = app
 
-from .views import index, poll, create, upload, auth
+from .views import index, poll, create, upload, auth, send_email
