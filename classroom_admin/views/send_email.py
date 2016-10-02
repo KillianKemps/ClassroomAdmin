@@ -80,11 +80,14 @@ def send_emails_created_classrooms(selected_courses, credentials):
                         'courseState': 'ACTIVE'
                     }
 
-                    # XXX Fetch course with classroom.get(alias)
+                    alias = 'd:' + body['name'] + ' ' + body['section']
+                    created_course = classroom_service.courses().get(id=alias)\
+                        .execute()
 
                     # Merge created course and initial course infos
                     email_info = {}
                     email_info.update(course)
+                    email_info.update(created_course)
 
                     email_request_id = str(index)
                     # Give course infos to email creation
