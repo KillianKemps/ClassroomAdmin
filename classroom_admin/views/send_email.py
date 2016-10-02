@@ -16,7 +16,7 @@ from ..utils import process_status, manage_email_error
 
 
 # Create email object
-def create_email(email_info, http_auth):
+def create_email(index, email_info, http_auth):
     service = discovery.build('gmail', 'v1', http=http_auth)
     EMAIL_CONF = app.config['EMAIL_CONF']
 
@@ -35,7 +35,7 @@ def create_email(email_info, http_auth):
     try:
         message = service.users().messages().send(userId='me', body=body)
     except Exception as e:
-        manage_error(e)
+        manage_email_error(e, index)
 
     return message
 
@@ -85,7 +85,7 @@ def send_emails_created_classrooms(selected_courses, credentials):
                         created_course = classroom_service.courses().get(id=alias)\
                             .execute()
                     except Exception as e:
-                        manage_email_error(e)
+                        manage_email_error(e, index)
 
                     # Merge created course and initial course infos
                     email_info = {}
@@ -94,7 +94,7 @@ def send_emails_created_classrooms(selected_courses, credentials):
 
                     email_request_id = str(index)
                     # Give course infos to email creation
-                    emails_batch.add(create_email(email_info, http_auth),
+                    emails_batch.add(create_email(index, email_info, http_auth),
                         request_id=email_request_id)
 
             try:

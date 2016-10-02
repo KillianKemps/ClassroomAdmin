@@ -19,7 +19,7 @@ EMAILS = {}
 
 
 # Get individual emails from mailing list
-def get_emails(http_auth, mailing_list):
+def get_emails(index, http_auth, mailing_list):
     if mailing_list in EMAILS:
         print('Mailing list already exist')
         app.logger.info('Mailing list already exist')
@@ -33,13 +33,13 @@ def get_emails(http_auth, mailing_list):
             clean_mailing_list = mailing_list.strip()
             students = service.members().list(groupKey=clean_mailing_list).execute()
         except Exception as e:
-            manage_error(e)
+            manage_error(e, index)
 
         EMAILS[mailing_list] = students.get('members', [])
         return EMAILS[mailing_list]
 
 # Create email object
-def create_email(email_info, http_auth):
+def create_email(index, email_info, http_auth):
     service = discovery.build('gmail', 'v1', http=http_auth)
     EMAIL_CONF = app.config['EMAIL_CONF']
 
@@ -58,7 +58,7 @@ def create_email(email_info, http_auth):
     try:
         message = service.users().messages().send(userId='me', body=body)
     except Exception as e:
-        manage_error(e)
+        manage_error(e, index)
 
     return message
 
@@ -162,7 +162,7 @@ def create_classrooms(selected_courses, credentials):
                         created_course = classroom_service.courses() \
                             .create(body=body).execute()
                     except Exception as e:
-                        manage_error(e)
+                        manage_error(e, index)
 
                     print(created_course)
                     app.logger.info(created_course)
@@ -174,15 +174,16 @@ def create_classrooms(selected_courses, credentials):
                         created_course['section']
                     body = {'alias': alias}
 
-                    alias_request = service.courses().aliases().create(
-                        body=body,
-                        courseId=created_course['id']
-                        )
+                    alias_request = classroom_service.courses().aliases() \
+                        .create(
+                            body=body,
+                            courseId=created_course['id']
+                            )
 
                     try:
                         created_alias = alias_request.execute()
                     except Exception as e:
-                        manage_error(e)
+                        manage_error(e, index)
 
                     # Add teacher to course
                     teacher = {
@@ -203,12 +204,15 @@ def create_classrooms(selected_courses, credentials):
                     email_info.update(created_course)
 
                     # Give course infos to email creation
-                    emails_batch.add(create_email(email_info, http_auth),
+                    emails_batch.add(create_email(index, email_info, http_auth),
                         request_id=str(index))
 
                     # Add students to course
                     members = get_emails(
-                        http_auth, course['Liste de diffusion'])
+                        index,
+                        http_auth,
+                        course['Liste de diffusion']
+                        )
 
                     for member in members:
                         if member['email'].endswith(
