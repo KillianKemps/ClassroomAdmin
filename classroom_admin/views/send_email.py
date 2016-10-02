@@ -12,7 +12,7 @@ from apiclient import discovery, errors
 from oauth2client import client
 
 from .. import app
-from ..utils import process_status, manage_error
+from ..utils import process_status, manage_email_error
 
 
 # Create email object
@@ -51,7 +51,7 @@ def email_callback(request_id, response, exception):
 
 def send_emails_created_classrooms(selected_courses, credentials):
     # Set status of the app as being busy
-    process_status.creating_classrooms = True
+    process_status.sending_emails = True
     http_auth = credentials.authorize(httplib2.Http())
     classroom_service = discovery.build('classroom', 'v1', http=http_auth)
     email_service = discovery.build('gmail', 'v1', http=http_auth)
@@ -81,8 +81,11 @@ def send_emails_created_classrooms(selected_courses, credentials):
                     }
 
                     alias = 'd:' + body['name'] + ' ' + body['section']
-                    created_course = classroom_service.courses().get(id=alias)\
-                        .execute()
+                    try:
+                        created_course = classroom_service.courses().get(id=alias)\
+                            .execute()
+                    except Exception as e:
+                        manage_email_error(e)
 
                     # Merge created course and initial course infos
                     email_info = {}

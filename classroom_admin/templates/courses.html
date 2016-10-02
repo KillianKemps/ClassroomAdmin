@@ -2,6 +2,7 @@
 
 {% block navbar %}
 <button id="create-courses" class="btn btn-primary btn-lg" v-on:click="create" v-bind:class="{ 'loading': isLoading }">Create courses</button>
+<button id="send-manually-emails" class="btn btn-primary btn-lg" v-on:click="send" v-bind:class="{ 'loading': isLoadingEmails }">Send manually emails</button>
 {% endblock %}
 
 {% block content %}
@@ -13,6 +14,16 @@
       <button class="btn btn-clear float-right"></button>
       An error occurred while creating classrooms: <br/>
       ${ errorMessage }
+  </div>
+
+  <div class="toast toast-success" v-show="emailRequestSucceeded">
+      <button class="btn btn-clear float-right"></button>
+      All emails have been sent!
+  </div>
+  <div class="toast toast-danger" v-show="emailRequestFailed">
+      <button class="btn btn-clear float-right"></button>
+      An error occurred while sending emails: <br/>
+      ${ emailErrorMessage }
   </div>
 
   <form action="upload" method="post" enctype="multipart/form-data">

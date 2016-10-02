@@ -5,11 +5,15 @@ new Vue({
   el: '#app',
   data: {
     isLoading: false,
+    isLoadingEmails: false,
     checkboxes: document.querySelectorAll('input[class=course]'),
     coursesArray: [],
     requestSucceeded: false,
     requestFailed: false,
-    errorMessage: ''
+    emailRequestSucceeded: false,
+    emailRequestFailed: false,
+    errorMessage: '',
+    emailErrorMessage: ''
   },
   methods: {
     setAllCheckboxes: function(event) {
@@ -61,6 +65,38 @@ new Vue({
         });
       }
     },
+    send: function (event) {
+      if (this.coursesArray.length > 0) {
+        console.log('Requesting to send email(s)...');
+        this.emailrequestFailed = false;
+        this.emailrequestSucceeded = false;
+        this.isLoadingEmails = true;
+
+        // Creating form data for sending courses
+        var formData = new FormData();
+        formData.append('courses', this.coursesArray);
+        this.coursesArray = [];
+
+        this.$http.post('/manually-send-email', formData)
+        .then(function(response) {
+          console.log('Request ok:', response);
+          // success callback
+          if (response.status === 202) {
+            this.pollEmails();
+          }
+          else {
+            this.isLoadingEmails = false;
+            this.emailRequestSucceeded = true;
+          }
+        }, function(response) {
+          console.log('Got an error:', response);
+          // error callback
+          this.emailErrorMessage = response.data;
+          this.emailrequestFailed = true;
+          this.isLoadingEmails = false;
+        });
+      }
+    },
     poll: function (event) {
       var textarea = document.createElement('textarea');
       function unescapeHTML(html) {
@@ -85,6 +121,32 @@ new Vue({
         this.errorMessage = unescapeHTML(response.data);
         this.requestFailed = true;
         this.isLoading = false;
+      });
+    },
+    pollEmails: function (event) {
+      var textarea = document.createElement('textarea');
+      function unescapeHTML(html) {
+          textarea.innerHTML = html;
+          return textarea.textContent;
+      }
+
+      this.$http.get('/poll-emails', {timeout: 5000})
+      .then(function(response) {
+        console.log('Poll emails request ok:', response);
+        // success callback
+        if (response.status === 202) {
+          window.setTimeout(this.pollEmails, 5000);
+        }
+        else {
+          this.isLoadingEmails = false;
+          this.emailRequestSucceeded = true;
+        }
+      }, function(response) {
+        console.log('Poll-emails: Got an error:', response);
+        // error callback
+        this.emailErrorMessage = unescapeHTML(response.data);
+        this.emailRequestFailed = true;
+        this.isLoadingEmails = false;
       });
     }
   }
