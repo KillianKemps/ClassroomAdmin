@@ -10,6 +10,7 @@ import flask
 from flask import render_template
 from apiclient import discovery, errors
 from oauth2client import client
+from retrying import retry
 
 from .. import app
 from ..utils import process_status, manage_error
@@ -79,6 +80,7 @@ def member_callback(request_id, response, exception):
                 .format(
                     request_id,
                     error))
+            raise exception
     else:
         print('User "{0}" added as a student to the course.'.format(
             response['userId']))
@@ -102,6 +104,7 @@ def teacher_callback(request_id, response, exception):
                 .format(
                     request_id,
                     error))
+            raise exception
     else:
         print('User "{0}" added as a teacher to the course.'.format(
             response['userId']))
@@ -114,6 +117,54 @@ def email_callback(request_id, response, exception):
         error = simplejson.loads(exception.content).get('error')
         print('An error occurred while sending email: %s' % error)
         app.logger.error('An error occurred while sending email: %s' % error)
+
+
+# Wrap functions to be decorated by @retry. Allows exponential backoff.
+@retry(wait_exponential_multiplier=1000,
+       wait_exponential_max=10000,
+       stop_max_delay=30000)
+def exec_alias_creation(alias_request):
+    try:
+        return alias_request.execute()
+    except Exception:
+        print('Error while creating alias: Trying again.')
+        raise
+
+
+# Wrap functions to be decorated by @retry. Allows exponential backoff.
+@retry(wait_exponential_multiplier=1000,
+       wait_exponential_max=10000,
+       stop_max_delay=30000)
+def exec_classroom_creation(classroom_service, body):
+    try:
+        return classroom_service.courses().create(body=body).execute()
+    except Exception:
+        print('Error while creating classroom: Trying again.')
+        raise
+
+
+# Wrap functions to be decorated by @retry. Allows exponential backoff.
+@retry(wait_exponential_multiplier=1000,
+       wait_exponential_max=10000,
+       stop_max_delay=30000)
+def exec_teacher_batch(teachers_batch, http_auth):
+    try:
+        teachers_batch.execute(http=http_auth)
+    except Exception:
+        print('Error while adding teachers: Trying again.')
+        raise
+
+
+# Wrap functions to be decorated by @retry. Allows exponential backoff.
+@retry(wait_exponential_multiplier=1000,
+       wait_exponential_max=10000,
+       stop_max_delay=30000)
+def exec_members_batch(members_batch, http_auth):
+    try:
+        members_batch.execute(http=http_auth)
+    except Exception:
+        print('Error while adding members: Trying again.')
+        raise
 
 
 def create_classrooms(selected_courses, credentials):
@@ -159,8 +210,9 @@ def create_classrooms(selected_courses, credentials):
                     }
 
                     try:
-                        created_course = classroom_service.courses() \
-                            .create(body=body).execute()
+                        created_course = exec_classroom_creation(
+                            classroom_service,
+                            body)
                     except Exception as e:
                         manage_error(e, index)
 
@@ -181,7 +233,7 @@ def create_classrooms(selected_courses, credentials):
                             )
 
                     try:
-                        created_alias = alias_request.execute()
+                        created_alias = exec_alias_creation(alias_request)
                     except Exception as e:
                         manage_error(e, index)
 
@@ -248,11 +300,11 @@ def create_classrooms(selected_courses, credentials):
 
             # Execute all batches
             try:
-                teachers_batch.execute(http=http_auth)
+                exec_teacher_batch(teachers_batch, http_auth)
             except Exception as e:
                 manage_error(e)
             try:
-                members_batch.execute(http=http_auth)
+                exec_members_batch(members_batch, http_auth)
             except Exception as e:
                 manage_error(e)
             try:
