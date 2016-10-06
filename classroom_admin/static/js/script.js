@@ -24,7 +24,7 @@ new Vue({
   },
   created: function() {
     socket.on('info', function(message) {
-      console.log('info: ', message);
+      console.log('info: ', message.data);
       this.infoMessage = message.data;
     }.bind(this));
   },
