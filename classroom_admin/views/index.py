@@ -3,7 +3,6 @@ import csv
 
 import flask
 from flask import render_template
-from flask_socketio import emit
 from oauth2client import client
 
 from .. import app
