@@ -14,8 +14,8 @@ class process_status():
     error_message = ''
     email_error_message = ''
 
-def manage_error(error, index):
-    if index:
+def manage_error(error, index=None):
+    if index is not None:
         app.logger.exception('Caught exception for classroom number {0}: {1}\
             '.format(index, error))
         process_status.error_message = 'On course n°' + str(index) + ' :' + error
@@ -27,8 +27,8 @@ def manage_error(error, index):
     process_status.error = True
     raise
 
-def manage_email_error(error, index):
-    if index:
+def manage_email_error(error, index=None):
+    if index is not None:
         app.logger.exception('Caught exception for classroom number {0}: {1}\
             '.format(index, error))
         process_status.email_error_message = 'On course n°' + str(index) + ' :' + error

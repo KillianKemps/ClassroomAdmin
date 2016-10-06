@@ -34,7 +34,7 @@ def get_emails(index, http_auth, mailing_list):
             clean_mailing_list = mailing_list.strip()
             students = service.members().list(groupKey=clean_mailing_list).execute()
         except Exception as e:
-            manage_error(e, index)
+            manage_error(e, index=index)
 
         EMAILS[mailing_list] = students.get('members', [])
         return EMAILS[mailing_list]
@@ -59,7 +59,7 @@ def create_email(index, email_info, http_auth):
     try:
         message = service.users().messages().send(userId='me', body=body)
     except Exception as e:
-        manage_error(e, index)
+        manage_error(e, index=index)
 
     return message
 
@@ -214,7 +214,7 @@ def create_classrooms(selected_courses, credentials):
                             classroom_service,
                             body)
                     except Exception as e:
-                        manage_error(e, index)
+                        manage_error(e, index=index)
 
                     print(created_course)
                     app.logger.info(created_course)
@@ -235,7 +235,7 @@ def create_classrooms(selected_courses, credentials):
                     try:
                         created_alias = exec_alias_creation(alias_request)
                     except Exception as e:
-                        manage_error(e, index)
+                        manage_error(e, index=index)
 
                     # Add teacher to course
                     teacher = {
