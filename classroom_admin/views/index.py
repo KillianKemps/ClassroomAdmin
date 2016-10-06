@@ -3,9 +3,12 @@ import csv
 
 import flask
 from flask import render_template
+from flask_socketio import SocketIO, emit
 from oauth2client import client
 
 from .. import app
+
+socketio = SocketIO(app)
 
 
 @app.route('/')
@@ -27,3 +30,22 @@ def index():
         else:
             return render_template('index.html')
 
+
+@socketio.on('my event')
+def test_message(message):
+    print('Socket: received message: ' + message['data'])
+    emit('my response', {'data': message['data']})
+
+@socketio.on('my broadcast event')
+def test_message(message):
+    print('Socket: received message: ' + message['data'])
+    emit('my response', {'data': message['data']}, broadcast=True)
+
+@socketio.on('connect')
+def test_connect():
+    print('Socket: got connected')
+    emit('my response', {'data': 'Connected'})
+
+@socketio.on('disconnect')
+def test_disconnect():
+    print('Client disconnected')

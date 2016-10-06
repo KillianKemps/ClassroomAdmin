@@ -7,6 +7,8 @@ import yaml
 app = Flask(__name__)
 assets = Environment(app)
 
+app.config['SECRET_KEY'] = 'secret!'
+
 # This is the path to the upload directory
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 # This is the path to the configuration directory

@@ -1,3 +1,12 @@
+  var socket = io.connect('http://' + document.domain + ':' + location.port);
+  socket.on('connect', function() {
+    console.log('got connected!')
+    socket.emit('my event', {data: 'I\'m connected!'});
+  });
+  socket.on('my response', function(msg) {
+    console.log('got response: ', msg);
+  });
+
 // Avoid conflict with Jinja template
 Vue.config.delimiters = ['${', '}'];
 
