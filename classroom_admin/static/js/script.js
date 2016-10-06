@@ -1,10 +1,7 @@
   var socket = io.connect('http://' + document.domain + ':' + location.port);
   socket.on('connect', function() {
-    console.log('got connected!')
-    socket.emit('my event', {data: 'I\'m connected!'});
-  });
-  socket.on('my response', function(msg) {
-    console.log('got response: ', msg);
+    console.log('Socket: Got connected to server!')
+    socket.emit('confirm', {data: 'I\'m connected!'});
   });
 
 // Avoid conflict with Jinja template
@@ -22,7 +19,14 @@ new Vue({
     emailRequestSucceeded: false,
     emailRequestFailed: false,
     errorMessage: '',
-    emailErrorMessage: ''
+    emailErrorMessage: '',
+    infoMessage: ''
+  },
+  created: function() {
+    socket.on('info', function(message) {
+      console.log('info: ', message);
+      this.infoMessage = message.data;
+    }.bind(this));
   },
   methods: {
     setAllCheckboxes: function(event) {

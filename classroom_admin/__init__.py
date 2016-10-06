@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_assets import Environment
+from flask_socketio import SocketIO
 
 import yaml
 
@@ -50,6 +51,7 @@ if not app.debug:
 
     app.logger.setLevel(logging.INFO)
 
+socketio = SocketIO(app)
 application = app
 
 from .views import index, poll, poll_emails, create, upload, auth, send_email

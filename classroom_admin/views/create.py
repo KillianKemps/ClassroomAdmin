@@ -13,10 +13,16 @@ from oauth2client import client
 from retrying import retry
 
 from .. import app
+from .. import socketio
 from ..utils import process_status, manage_error
 
 
 EMAILS = {}
+
+
+# Send information about the process through websocket
+def emit_info(message):
+    socketio.emit('info', {'data': message})
 
 
 # Get individual emails from mailing list
@@ -28,6 +34,7 @@ def get_emails(index, http_auth, mailing_list):
     else:
         print('Getting mailing list')
         app.logger.info('Getting mailing list')
+        emit_info('Getting {0} mailing list...'.format(mailing_list))
         service = discovery.build('admin', 'directory_v1', http=http_auth)
 
         try:
@@ -128,6 +135,7 @@ def exec_alias_creation(alias_request):
         return alias_request.execute()
     except Exception:
         print('Error while creating alias: Trying again.')
+        emit_info('Error while creating alias: Trying again.')
         raise
 
 
@@ -140,6 +148,7 @@ def exec_classroom_creation(classroom_service, body):
         return classroom_service.courses().create(body=body).execute()
     except Exception:
         print('Error while creating classroom: Trying again.')
+        emit_info('Error while creating classroom: Trying again.')
         raise
 
 
@@ -149,9 +158,11 @@ def exec_classroom_creation(classroom_service, body):
        stop_max_delay=30000)
 def exec_teacher_batch(teachers_batch, http_auth):
     try:
+        emit_info('Executing teachers batch request...')
         teachers_batch.execute(http=http_auth)
     except Exception:
         print('Error while adding teachers: Trying again.')
+        emit_info('Error while adding teachers: Trying again.')
         raise
 
 
@@ -161,9 +172,11 @@ def exec_teacher_batch(teachers_batch, http_auth):
        stop_max_delay=30000)
 def exec_members_batch(members_batch, http_auth):
     try:
+        emit_info('Executing members batch request...')
         members_batch.execute(http=http_auth)
     except Exception:
         print('Error while adding members: Trying again.')
+        emit_info('Error while adding members: Trying again.')
         raise
 
 
@@ -196,6 +209,7 @@ def create_classrooms(selected_courses, credentials):
                 if index in selected_courses:
                     print('Creating classroom ', index)
                     app.logger.info('Creating classroom %s', index)
+                    emit_info('Creating classroom {0}...'.format(index))
 
                     COURSE_CONF = app.config['COURSE_CONF']
 
@@ -221,6 +235,7 @@ def create_classrooms(selected_courses, credentials):
 
                     print('Adding alias to classroom ', index)
                     app.logger.info('Adding alias to classroom  %s', index)
+                    emit_info('Adding alias to classroom {0}...'.format(index))
 
                     alias = 'd:' + created_course['name'] + ' ' + \
                         created_course['section']
@@ -299,6 +314,7 @@ def create_classrooms(selected_courses, credentials):
                                     'been added: %s', e)
 
             # Execute all batches
+            emit_info('Executing all batch requests...')
             try:
                 exec_teacher_batch(teachers_batch, http_auth)
             except Exception as e:
