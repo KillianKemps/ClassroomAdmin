@@ -130,8 +130,9 @@ def email_callback(request_id, response, exception):
 @retry(wait_exponential_multiplier=1000,
        wait_exponential_max=10000,
        stop_max_delay=30000)
-def exec_alias_creation(alias_request):
+def exec_alias_creation(index, alias_request):
     try:
+        emit_info('Adding alias to classroom {0}...'.format(index))
         return alias_request.execute()
     except Exception:
         print('Error while creating alias: Trying again.')
@@ -143,8 +144,9 @@ def exec_alias_creation(alias_request):
 @retry(wait_exponential_multiplier=1000,
        wait_exponential_max=10000,
        stop_max_delay=30000)
-def exec_classroom_creation(classroom_service, body):
+def exec_classroom_creation(index, classroom_service, body):
     try:
+        emit_info('Creating classroom {0}...'.format(index))
         return classroom_service.courses().create(body=body).execute()
     except Exception:
         print('Error while creating classroom: Trying again.')
@@ -209,7 +211,6 @@ def create_classrooms(selected_courses, credentials):
                 if index in selected_courses:
                     print('Creating classroom ', index)
                     app.logger.info('Creating classroom %s', index)
-                    emit_info('Creating classroom {0}...'.format(index))
 
                     COURSE_CONF = app.config['COURSE_CONF']
 
@@ -225,6 +226,7 @@ def create_classrooms(selected_courses, credentials):
 
                     try:
                         created_course = exec_classroom_creation(
+                            index,
                             classroom_service,
                             body)
                     except Exception as e:
@@ -235,7 +237,6 @@ def create_classrooms(selected_courses, credentials):
 
                     print('Adding alias to classroom ', index)
                     app.logger.info('Adding alias to classroom  %s', index)
-                    emit_info('Adding alias to classroom {0}...'.format(index))
 
                     alias = 'd:' + created_course['name'] + ' ' + \
                         created_course['section']
@@ -248,7 +249,9 @@ def create_classrooms(selected_courses, credentials):
                             )
 
                     try:
-                        created_alias = exec_alias_creation(alias_request)
+                        created_alias = exec_alias_creation(
+                            index,
+                            alias_request)
                     except Exception as e:
                         manage_error(e, index=index)
 
