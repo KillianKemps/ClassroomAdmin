@@ -94,6 +94,7 @@ def member_callback(request_id, response, exception):
         app.logger.info('User "{0}" added as a student to the course.'.format(
             response['userId']))
 
+
 # Callback function for each teacher been added to a classroom
 def teacher_callback(request_id, response, exception):
     if exception is not None:
@@ -102,7 +103,7 @@ def teacher_callback(request_id, response, exception):
             print('Teacher "{0}" is already a member of this course.'.format(
                 request_id))
             app.logger.error('Teacher "{0}" is already a member of '
-                'this course.'.format(request_id))
+                             'this course.'.format(request_id))
         else:
             print('Error adding teacher "{0}" to the course: {1}'.format(
                 request_id,
