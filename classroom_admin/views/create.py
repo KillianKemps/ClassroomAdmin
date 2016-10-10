@@ -142,6 +142,10 @@ def exec_alias_check(index, classroom_service, alias):
                 alias))
         else:
             raise
+    # XXX Dirty fix for a 'flask.app' KeyError. To be later changed.
+    except KeyError:
+        print('Got KeyError, error has been passed in a dirty way.')
+        app.logger.error('Got KeyError, error has been passed in a dirty way.')
     except Exception:
         print('Error while checking alias: Trying again.')
         emit_info('Error while checking alias: Trying again.')
@@ -156,6 +160,10 @@ def exec_alias_creation(index, alias_request):
     try:
         emit_info('Adding alias to classroom {0}...'.format(index))
         return alias_request.execute()
+    # XXX Dirty fix for a 'flask.app' KeyError. To be later changed.
+    except KeyError:
+        print('Got KeyError, error has been passed in a dirty way.')
+        app.logger.error('Got KeyError, error has been passed in a dirty way.')
     except Exception:
         print('Error while creating alias: Trying again.')
         emit_info('Error while creating alias: Trying again.')
@@ -170,6 +178,10 @@ def exec_classroom_creation(index, classroom_service, body):
     try:
         emit_info('Creating classroom {0}...'.format(index))
         return classroom_service.courses().create(body=body).execute()
+    # XXX Dirty fix for a 'flask.app' KeyError. To be later changed.
+    except KeyError:
+        print('Got KeyError, error has been passed in a dirty way.')
+        app.logger.error('Got KeyError, error has been passed in a dirty way.')
     except Exception:
         print('Error while creating classroom: Trying again.')
         emit_info('Error while creating classroom: Trying again.')
@@ -184,6 +196,10 @@ def exec_teacher_batch(teachers_batch, http_auth):
     try:
         emit_info('Executing teachers batch request...')
         teachers_batch.execute(http=http_auth)
+    # XXX Dirty fix for a 'flask.app' KeyError. To be later changed.
+    except KeyError:
+        print('Got KeyError, error has been passed in a dirty way.')
+        app.logger.error('Got KeyError, error has been passed in a dirty way.')
     except Exception:
         print('Error while adding teachers: Trying again.')
         emit_info('Error while adding teachers: Trying again.')
@@ -198,6 +214,10 @@ def exec_members_batch(members_batch, http_auth):
     try:
         emit_info('Executing members batch request...')
         members_batch.execute(http=http_auth)
+    # XXX Dirty fix for a 'flask.app' KeyError. To be later changed.
+    except KeyError:
+        print('Got KeyError, error has been passed in a dirty way.')
+        app.logger.error('Got KeyError, error has been passed in a dirty way.')
     except Exception:
         print('Error while adding members: Trying again.')
         emit_info('Error while adding members: Trying again.')
