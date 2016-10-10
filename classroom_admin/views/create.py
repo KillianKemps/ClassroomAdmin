@@ -130,6 +130,28 @@ def email_callback(request_id, response, exception):
 @retry(wait_exponential_multiplier=1000,
        wait_exponential_max=10000,
        stop_max_delay=30000)
+def exec_alias_check(index, classroom_service, alias):
+    try:
+        emit_info('Checking alias {0} doesn\'t already exist...'.format(
+            alias))
+        return classroom_service.courses().get(id=alias).execute()
+    except errors.HttpError as e:
+        error = simplejson.loads(e.content).get('error')
+        if(error.get('code') == 404):
+            print('Alias "{0}" is free.'.format(
+                alias))
+        else:
+            raise
+    except Exception:
+        print('Error while checking alias: Trying again.')
+        emit_info('Error while checking alias: Trying again.')
+        raise
+
+
+# Wrap functions to be decorated by @retry. Allows exponential backoff.
+@retry(wait_exponential_multiplier=1000,
+       wait_exponential_max=10000,
+       stop_max_delay=30000)
 def exec_alias_creation(index, alias_request):
     try:
         emit_info('Adding alias to classroom {0}...'.format(index))
@@ -224,6 +246,26 @@ def create_classrooms(selected_courses, credentials):
                         'courseState': 'ACTIVE'
                     }
 
+                    alias = 'd:' + body['name'] + ' ' + body['section']
+                    alias = {'alias': alias}
+
+                    # Check before that the alias doesn't exist
+                    try:
+                        check_alias = exec_alias_check(
+                            index,
+                            classroom_service,
+                            alias['alias'])
+                    except Exception as e:
+                        manage_error(e, index)
+
+                    try:
+                        if check_alias is not None:
+                            raise Exception('Alias for course {0} already '
+                                            'exist.'.format(body['name']))
+                    except Exception as e:
+                        manage_error(e, index)
+
+                    # Create classroom
                     try:
                         created_course = exec_classroom_creation(
                             index,
@@ -238,13 +280,9 @@ def create_classrooms(selected_courses, credentials):
                     print('Adding alias to classroom ', index)
                     app.logger.info('Adding alias to classroom  %s', index)
 
-                    alias = 'd:' + created_course['name'] + ' ' + \
-                        created_course['section']
-                    body = {'alias': alias}
-
                     alias_request = classroom_service.courses().aliases() \
                         .create(
-                            body=body,
+                            body=alias,
                             courseId=created_course['id']
                             )
 
