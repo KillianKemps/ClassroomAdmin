@@ -33,7 +33,9 @@ if not app.debug:
     from logging import FileHandler, Formatter
     from logging.handlers import RotatingFileHandler
 
-    error_file_handler = FileHandler('error.log')
+    error_file_handler = RotatingFileHandler('error.log',
+        maxBytes=20000,
+        backupCount=3)
     error_file_handler.setFormatter(Formatter(
         '%(asctime)s %(levelname)s: %(message)s '
         '[in %(pathname)s:%(lineno)d]'
@@ -41,7 +43,9 @@ if not app.debug:
     error_file_handler.setLevel(logging.WARNING)
     app.logger.addHandler(error_file_handler)
 
-    rotating_handler = RotatingFileHandler('stdout.log', maxBytes=10000, backupCount=1)
+    rotating_handler = RotatingFileHandler('stdout.log',
+        maxBytes=20000,
+        backupCount=3)
     rotating_handler.setFormatter(Formatter(
         '%(asctime)s %(levelname)s: %(message)s '
         '[in %(pathname)s:%(lineno)d]'
