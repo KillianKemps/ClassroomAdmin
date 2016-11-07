@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
+
+  {% if error_message %}
+  <div class="toast toast-danger">
+      {{ error_message }}
+  </div>
+  {% endif %}
+
   <div class="empty">
     <form action="upload" method="post" enctype="multipart/form-data">
       <span class="empty-title">Select CSV to upload:</span>

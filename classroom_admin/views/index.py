@@ -21,10 +21,17 @@ def index():
         return flask.redirect(flask.url_for('oauth2callback'))
     else:
         filename = os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv')
-        if os.path.isfile(filename) :
+        if os.path.isfile(filename):
             with open(filename) as csvfile:
                 reader = csv.DictReader(csvfile)
-                return render_template('courses.html', courses=reader)
+                try:
+                    return render_template('courses.html', courses=reader)
+                except Exception:
+                    error_message = "Some characters in the file are not in " \
+                        "UTF-8. Please check your file and remove non-unicode " \
+                        "characters."
+                    return render_template('index.html',
+                                           error_message=error_message)
         else:
             return render_template('index.html')
 
