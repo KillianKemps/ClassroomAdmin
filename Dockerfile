@@ -8,7 +8,7 @@ WORKDIR    /var/app
 RUN        /usr/local/bin/pip install uwsgi
 RUN        useradd uwsgi -s /bin/false
 
-COPY       classroom_admin /var/app/
+COPY       classroom_admin /var/app/classroom_admin
 COPY       wsgi.py /var/app/
 COPY       requirements.txt /var/app/
 RUN        if [ -f /var/app/requirements.txt ]; then /usr/local/bin/pip install -r /var/app/requirements.txt; fi
@@ -21,7 +21,7 @@ ENV        UWSGI_LOG_FILE         /var/log/uwsgi/uwsgi.log
 
 ENV        SERVICE_NAME           classroom_admin
 
-EXPOSE     8080
+EXPOSE     8000
 
 ADD        docker/service-start.sh /
 CMD        ["/service-start.sh"]

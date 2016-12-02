@@ -4,4 +4,4 @@
 cd /var/app
 
 # Start HTTP server.
-uwsgi --http :8080 --chdir /var/app --gevent 1000 --http-websockets --master --processes $UWSGI_NUM_PROCESSES --wsgi-file wsgi.py --callable application
+gunicorn -b 0.0.0.0:8000 -k gevent -w 1 classroom_admin:app
