@@ -2,6 +2,8 @@
 
 This application enables to create Google Classrooms in bulk from a CSV file.
 
+![Classroom Admin Screenshot](classroom_admin_screenshot.png)
+
 ## Configuration
 
 Some setup is needed to allow you to create courses and to send emails according to your taste. This configuration allows you to choose values of your CSV file and to format some fields.
