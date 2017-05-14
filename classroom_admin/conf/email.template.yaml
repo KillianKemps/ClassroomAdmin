@@ -1,10 +1,12 @@
 to: to_email
-subject-format: 'Subject: {0}'
 subject-value: course
+subject-format: 'Subject: {0}'
 content-value:
   - Surname
   - Name
   - alternateLink
+  - enrollmentCode
+  - Teacher Email
 content-format:
   >
     <html>
@@ -12,5 +14,10 @@ content-format:
 
     <p>You can access the created course at {2]</p>
 
+    <p>You can also give access to the students by giving them the following enrollement code: {3}</p>
+
+    <p><span style="font-weight:bold; color:red">CAUTION,</span> this interface is only accessible through the email the school gave you: {4}</p>
+
+    <p>The School team</p>
     </html>
 
