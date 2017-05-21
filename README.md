@@ -79,6 +79,8 @@ Some setup is needed to allow you to create courses and to send emails according
 
 **This is needed because the Classroom Admin application needs to know which fields to use from your CSV file and how to use them.**
 
+You can see an example of CSV file in the [example](example/courses.csv) folder.
+
 Two configuration files templates are available in `conf/`. Simply copy and rename them without `.template` to enable them.
 
 Please see below for details about the configuration values:

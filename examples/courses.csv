@@ -1,0 +1,5 @@
+Name,Surname,Owner,Teacher Email,Course,Term,Domain,Year,Promotion,Students Email,Useless Column
+DOE,Julie,admin@my-school.com,julie.doe@my-school.com,[Test] Maths,1,Business,2016-2017,P2020,students-p2020@my-school.com,Just to show you can have extra columns which are not used
+DOE,Christine,admin@my-school.com,christine.doe@my-school.com,[Test] Typography,1,Design,2016-2017,P2020,students-p2020@my-school.com,Just to show you can have extra columns which are not used
+DOE,Valentine,admin@my-school.com,valentine.doe@my-school.com,[Test] Marketing,1,Business,2016-2017,P2020,students-p2020@my-school.com,Just to show you can have extra columns which are not used
+DOE,Arthur,admin@my-school.com,arthur.doe@my-school.com,[Test] Graphic Design,1,Design,2016-2017,P2020,students-p2020@my-school.com,Just to show you can have extra columns which are not used
