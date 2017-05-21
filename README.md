@@ -24,6 +24,8 @@ This feature has also been added for technical reasons because Gmail can't guara
 - [Developers](docs/DEVELOPERS.md)
 - [License](LICENSE.md)
 
-Made by a student of the [Web School Factory](https://www.webschoolfactory.fr/).
+Source code released under the [CeCILL Free Software License](LICENSE.md).
+
+Made by [Killian Kemps](https://www.killiankemps.fr) student at the [Web School Factory](https://www.webschoolfactory.fr/).
 
 [!["Web School Factory"](webschoolfactory_0.png)](https://www.webschoolfactory.fr/)
