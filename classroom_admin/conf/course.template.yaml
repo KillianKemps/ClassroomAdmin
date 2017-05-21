@@ -1,10 +1,10 @@
 ownerId: Owner
 name: Name
-section-format: '{0} - {1} - {2}'
 section-values:
   - Year
   - Domain
   - Promotion
+section-format: '{0} - {1} - {2}'
 teacher: Teacher Email
 students: Students email
 member-email-domain: '@my-school.com'
