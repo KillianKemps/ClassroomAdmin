@@ -19,6 +19,8 @@ This feature has also been added for technical reasons because Gmail can't guara
 
 ## Installation
 
+### Requirements
+
 Software Requirements:
   - Docker 1.11.2
   - Docker Compose 1.7.1
@@ -31,21 +33,39 @@ API Requirements:
   - Google Classroom API enabled
   - Client ID for Web Server
 
-To get your client ID, go on [Google's Console API](https://console.developers.google.com/apis/) and follow the wizard.
+### Google's admin account creation
 
-Once the requirements installed, simply clone this directory, add your Google API secret and launch docker-compose.
+To get your client ID, go on [Google's Console API](https://console.developers.google.com/apis/).
 
-Clone the repository:
+1. Create a Project with the name of your choice
+2. Create keys for your project
+  1. Choose Web Application keys
+  2. Download the client ID and the client secret JSON file given by Google and
+  rename it to `client_secret.json`
+  3. Authorize the domain name where you want to host the app
+3. Enable the three following APIs for the project:
+  1. Admin SDK API
+  2. Gmail API
+  3. Google Classroom API
+
+### Application setup
+
+Once the requirements installed, simply clone this directory on your server,
+add your Google API secret and launch docker-compose:
+
+1. Clone the repository:
 ``` Server
 git clone https://github.com/KillianKemps/ClassroomAdmin
 ```
 
-Copy your Google client ID from your computer to the server under the name `client_secret.json`
+2. Copy your Google client ID from your computer to the server under the name `client_secret.json`
 ``` Computer
 scp client_secret.json username@your-server-address:~/ClassroomAdmin
 ```
 
-Launch the app in background
+3. Configure you app as described [below](#Configuration)
+
+4. Launch the app in background
 ```
 cd ClassroomAdmin
 docker-compose up -d
