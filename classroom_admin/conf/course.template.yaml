@@ -6,5 +6,5 @@ section-values:
   - Promotion
 section-format: '{0} - {1} - {2}'
 teacher: Teacher Email
-students: Students email
+students: Students Email
 member-email-domain: '@my-school.com'

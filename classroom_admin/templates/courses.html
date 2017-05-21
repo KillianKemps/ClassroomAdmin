@@ -2,7 +2,7 @@
 
 {% block navbar %}
 <button id="create-courses" class="btn btn-primary btn-lg" v-on:click="create" v-bind:class="{ 'loading': isLoading }">Create courses</button>
-<button id="send-manually-emails" class="btn btn-primary btn-lg" v-on:click="send" v-bind:class="{ 'loading': isLoadingEmails }">Resend manually emails</button>
+<button id="send-manually-emails" class="btn btn-primary btn-lg" v-on:click="send" v-bind:class="{ 'loading': isLoadingEmails }">Resend emails manually</button>
 {% endblock %}
 
 {% block content %}
