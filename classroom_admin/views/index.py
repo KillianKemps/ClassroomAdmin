@@ -25,7 +25,9 @@ def index():
             with open(filename) as csvfile:
                 reader = csv.DictReader(csvfile)
                 try:
-                    return render_template('courses.html', courses=reader)
+                    return render_template('courses.html',
+                                           courses=reader,
+                                           conf=app.config['COURSE_CONF'])
                 except Exception:
                     error_message = "Some characters in the file are not in " \
                         "UTF-8. Please check your file and remove non-unicode " \

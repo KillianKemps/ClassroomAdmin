@@ -42,13 +42,13 @@
     <thead>
       <tr>
         <th>Index</th>
-        <th>Cours</th>
-        <th>Mail wsf de l'intervenant</th>
-        <th>Liste de diffusion</th>
-        <th>Promotion</th>
-        <th>Année scolaire</th>
-        <th>Domaine</th>
-        <th>Sélectionner tout:
+        <th>{{ conf['name'] }}</th>
+        <th>{{ conf['teacher'] }}</th>
+        <th>{{ conf['students'] }}</th>
+        {% for section in conf['section-values'] %}
+          <th>{{ section }}</th>
+        {% endfor %}
+        <th>
           <label class="form-checkbox" v-on:change="setAllCheckboxes">
             <input type="checkbox"/>
             <i class="form-icon"></i>
@@ -60,12 +60,12 @@
       {% for course in courses %}
         <tr>
           <td>{{ loop.index - 1 }}.</td>
-          <td>{{ course['Cours'] }}</td>
-          <td>{{ course['Mail wsf de l\'intervenant'] }}</td>
-          <td>{{ course['Liste de diffusion'] }}</td>
-          <td>{{ course['Promotion'] }}</td>
-          <td>{{ course['Année scolaire'] }}</td>
-          <td>{{ course['Domaine'] }}</td>
+          <td>{{ course[conf['name']] }}</td>
+          <td>{{ course[conf['teacher']] }}</td>
+          <td>{{ course[conf['students']] }}</td>
+        {% for section in conf['section-values'] %}
+          <td>{{ course[section] }}</td>
+        {% endfor %}
           <td>
             <label class="form-checkbox" v-on:change="add">
               <input type="checkbox" class="course" data-index="{{loop.index}}"/>

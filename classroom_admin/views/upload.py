@@ -19,8 +19,8 @@ def upload():
         if not os.path.exists(app.config['UPLOAD_FOLDER']):
             os.makedirs(app.config['UPLOAD_FOLDER'])
 
-        # Move the file form the temporal folder to
-        # the upload folder we setup
+        # Move the file from the temporary folder to
+        # the upload folder we have setup
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], 'courses_list.csv'))
 
         print('New file uploaded')
@@ -28,5 +28,5 @@ def upload():
         # Redirect the user to the uploaded_file route, which
         # will basicaly show on the browser the uploaded file
         return flask.redirect(flask.url_for('index'))
-
-
+    else:
+        return flask.redirect(flask.url_for('index'))
