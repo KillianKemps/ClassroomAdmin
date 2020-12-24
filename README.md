@@ -1,5 +1,7 @@
 # Classroom Admin
 
+**IMPORTANT NOTE:** As of December 2020, this application has been developed more than four years ago for the school while I was still student and hasn't been updated since then. Classroom Admin is therefore **abandoned**, has no guarantee to be still working and I'm offering no support for it. Feel free to fork the project according to the [CeCILL License](LICENSE.md) and update it according to your needs.
+
 This application enables to create Google Classrooms in bulk from a CSV file when you are using the Google Apps suite for your organization.
 
 The problem encountered by the [Web School Factory](https://www.webschoolfactory.fr/) Staff was that they had to create
